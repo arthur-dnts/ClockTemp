@@ -13,7 +13,7 @@ def get_weather():
 
 numbers = [
     [1,1,1,1,0,1,1,0,1,1,0,1,1,1,1],  # 0
-    [0,0,1,0,0,1,0,0,1,0,0,1,0,0,1],  # 1
+    [0,1,0,0,1,0,0,1,0,0,1,0,0,1,0],  # 1
     [1,1,1,0,0,1,1,1,1,1,0,0,1,1,1],  # 2
     [1,1,1,0,0,1,1,1,1,0,0,1,1,1,1],  # 3
     [1,0,1,1,0,1,1,1,1,0,0,1,0,0,1],  # 4
@@ -53,47 +53,28 @@ def render_time():
             lines[row] += digit_lines[row] + " "
     return lines
 
-def render_temp():
-    temp_format = "c"
-    current_temp = get_weather()
-    temp_str = f"{current_temp:.1f}"
-    lines = [""] * 5
-    for char in temp_str:
-        if char == ".":
-            digit_matrix = numbers[12]
-        else:
-            digit_matrix = numbers[int(char)]
-        digit_lines = render_digit(digit_matrix)
-        for row in range(5):
-            lines[row] += digit_lines[row] + " "
-    if temp_format == "c":
-        digit_matrix = numbers[13]
-    elif temp_format == "f":
-        digit_matrix = numbers[14]
-    digit_lines = render_digit(digit_matrix)
-    for row in range(5):
-        lines[row] += digit_lines[row] + " "
-    return lines
-
 def main(stdscr):
     curses.curs_set(0)  # Remove cursor
     stdscr.timeout(1000)  # 1 second tick
 
     last_time = ""
-    last_temp = ""
+    last_temp_update = 0
+    current_temp = "N/A"
 
     while True:
+        start_time = time.time()
+
+        # Refresh temperature
+        if time.time() - last_temp_update >= 600:
+            current_temp = get_weather()
+            last_temp_update = time.time()
+
         # Get terminal size
         height, width = stdscr.getmaxyx()
 
-        # Date
+        # Date and Temperature
         current_date = datetime.today().strftime("%d/%m/%Y")
-
-        date_height = len(current_date)
-        date_width = len(current_date[0])
-
-        date_start_y = (height - date_height) // 2
-        date_start_x = (width - date_width) // 2
+        dateTemp = f"{current_date} | {current_temp:.1f} ºC" if isinstance(current_temp, (int, float)) else f"{current_date} | {current_temp}"
 
         # Clock
         current_time_lines = render_time()
@@ -104,25 +85,12 @@ def main(stdscr):
         clock_start_y = (height - clock_height) // 2
         clock_start_x = (width - clock_width) // 2
 
-        # Weather
-        current_temp_lines = render_temp()
-
-        temp_height = len(current_temp_lines)
-        temp_width = len(current_temp_lines[0])
-
-        temp_start_y = (height - temp_height) // 2 - 6
-        temp_start_x = (width - temp_width) // 2
-
         if "\n".join(current_time_lines) != last_time:
+            stdscr.clear()
             for i, line in enumerate(current_time_lines):
                 stdscr.addstr(clock_start_y + i, clock_start_x, line)
             last_time = "\n".join(current_time_lines)
-            stdscr.addstr(date_start_y + 9, date_start_x, current_date)
-        
-        if "\n".join(current_temp_lines) != last_temp:
-            for i, line in enumerate(current_temp_lines):
-                stdscr.addstr(temp_start_y + i, temp_start_x, line)
-            last_temp = "\n".join(current_temp_lines)
+            stdscr.addstr(clock_start_y + 6, clock_start_x + 18, dateTemp)
 
         # Refresh terminal
         stdscr.refresh()
@@ -131,5 +99,10 @@ def main(stdscr):
         key = stdscr.getch()
         if key == ord('q'):
             break
+
+        # 1 second for each interaction
+        elapsed_time = time.time() - start_time
+        sleep_time = max(0, 1.0 - elapsed_time)
+        time.sleep(sleep_time)
 
 curses.wrapper(main)
