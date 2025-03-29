@@ -7,12 +7,15 @@ import curses
 import time
 
 def parse_args():
+    # Args to command line
     parser = argparse.ArgumentParser(description="ClockTemp is a simple and customizable TUI clock based on tty-clock")
-    parser.add_argument("-tf", choices=["12", "24"], default="24", help="Time format: 12 for 12-hour clock, 24 for 24-hour clock")
-    parser.add_argument("-df", choices=["DD/MM", "MM/DD"], default="MM/DD", help="Date format: DD/MM for day/month/year, MM/DD for month/day/year")
+    parser.add_argument("-tf", choices=["12", "24"], default="12", help="Time format: 12 (default) for 12-hour clock, 24 for 24-hour clock")
+    parser.add_argument("-df", choices=["dd/mm", "mm/dd"], default="mm/dd", help="Date format: dd/mm for day/month/year, mm/dd (default) for month/day/year")
+    parser.add_argument("-tu", choices=["c", "f"], default="c", help="Temperature unity: c (default) for Celsius, f for fahrenheit")
+    parser.add_argument("-s", choices=["true", "false"], default="true", help="Show/Hide seconds (default=True)")
     parser.add_argument("-lat", default="0", help="Latitude of your current location")
     parser.add_argument("-lon", default="0", help="Longitude of your current location")
-    parser.add_argument("-color", choices=["white", "red", "yellow", "green", "cyan", "blue", "magenta"], default="white", help="Clock color scheme: white, red, yellow, green, cyan, blue and magenta")
+    parser.add_argument("-color", choices=["white", "red", "yellow", "green", "cyan", "blue", "magenta"], default="white", help="Clock color scheme: white (default), red, yellow, green, cyan, blue and magenta")
     return parser.parse_args()
 
 def main(stdscr):
@@ -50,22 +53,41 @@ def main(stdscr):
             lat = args.lat
             lon = args.lon
             current_temp = get_weather(lat, lon)
+            if current_temp != "N/A":
+                if args.tu == "f":
+                    temp_format = (current_temp * 9/5) + 32
+                else:
+                    temp_format = current_temp
+            else:
+                temp_format = current_temp
             last_temp_update = time.time()
 
         # Terminal size
         height, width = stdscr.getmaxyx()
 
         # Date and Temperature
-        date_format = "%m/%d/%Y" if args.df == "MM/DD" else "%d/%m/%Y"
+        date_format = "%m/%d/%Y" if args.df == "mm/dd" else "%d/%m/%Y"
         current_date = datetime.today().strftime(date_format)
-        dateTemp = f"{current_date} | {current_temp:.1f} ºC" if isinstance(current_temp, (int, float)) else f"{current_date} | {current_temp}"
+        if args.tu == "f" and temp_format != "N/A":
+            temp_unity = "ºF"
+        elif args.tu == "c" and temp_format != "N/A":
+            temp_unity = "ºC"
+        else:
+            temp_unity = ""
+        dateTemp = f"{current_date} | {temp_format:.1f}{temp_unity}" if isinstance(temp_format, (int, float)) else f"{current_date} | {temp_format}{temp_unity}"
 
         # Hour format based on flag
-        time_format = "%H:%M:%S" if args.tf == "24" else "%I:%M:%S %p"
-        current_time_str = datetime.now().strftime(time_format)
+        if args.tf == "24" and args.s == "true":
+            time_format = "%H:%M:%S"
+        elif args.tf == "24" and args.s == "false":
+            time_format = "%H:%M"
+        elif args.tf == "12" and args.s == "true":
+            time_format = "%I:%M:%S"
+        else:
+            time_format = "%I:%M"
 
-        # Clock
-        current_time_lines = render_time()
+        # Centralize clock on terminal
+        current_time_lines = render_time(time_format)
         
         clock_height = len(current_time_lines)
         clock_width = len(current_time_lines[0])
@@ -73,12 +95,18 @@ def main(stdscr):
         clock_start_y = (height - clock_height) // 2
         clock_start_x = (width - clock_width) // 2
 
+        # Centralize date and temperature on terminal
+
+        dateTemp_width = len(dateTemp)
+
+        dateTemp_start_x = (width - dateTemp_width) // 2
+
         if "\n".join(current_time_lines) != last_time:
             stdscr.clear()
             for i, line in enumerate(current_time_lines):
                 stdscr.addstr(clock_start_y + i, clock_start_x, line)
             last_time = "\n".join(current_time_lines)
-            stdscr.addstr(clock_start_y + 6, clock_start_x + 18, dateTemp)
+            stdscr.addstr(clock_start_y + 6, dateTemp_start_x - 1, dateTemp)
 
         # Refresh terminal
         stdscr.refresh()

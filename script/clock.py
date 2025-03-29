@@ -3,7 +3,7 @@ import time
 # Numbers matrix 5x3
 NUMBERS = [
     [1,1,1,1,0,1,1,0,1,1,0,1,1,1,1],  # 0
-    [0,1,0,0,1,0,0,1,0,0,1,0,0,1,0],  # 1
+    [0,0,1,0,0,1,0,0,1,0,0,1,0,0,1],  # 1
     [1,1,1,0,0,1,1,1,1,1,0,0,1,1,1],  # 2
     [1,1,1,0,0,1,1,1,1,0,0,1,1,1,1],  # 3
     [1,0,1,1,0,1,1,1,1,0,0,1,0,0,1],  # 4
@@ -28,8 +28,8 @@ def render_digit(digit_matrix):
     return lines
 
 # Render time based on current time
-def render_time():
-    current_time = time.strftime("%H:%M:%S")
+def render_time(timeFormat):
+    current_time = time.strftime(timeFormat)
     lines = [""] * 5
     for char in current_time:
         if char == ":":
