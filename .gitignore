@@ -1,5 +1,5 @@
 venv
 script/__pycache__
-.argparse
-.curses
-.time
+argparse
+curses
+time
