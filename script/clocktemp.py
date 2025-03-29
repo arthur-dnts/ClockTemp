@@ -12,7 +12,7 @@ def parse_args():
     parser.add_argument("-df", choices=["DD/MM", "MM/DD"], default="MM/DD", help="Date format: DD/MM for day/month/year, MM/DD for month/day/year")
     parser.add_argument("-lat", default="0", help="Latitude of your current location")
     parser.add_argument("-lon", default="0", help="Longitude of your current location")
-    parser.add_argument("-color", choices=["white", "red", "yellow", "green", "cyan", "blue", "magenta"], default="white", help="Clock color scheme: white, red, orange, yellow, green, blue or purple")
+    parser.add_argument("-color", choices=["white", "red", "yellow", "green", "cyan", "blue", "magenta"], default="white", help="Clock color scheme: white, red, yellow, green, cyan, blue and magenta")
     return parser.parse_args()
 
 def main(stdscr):
