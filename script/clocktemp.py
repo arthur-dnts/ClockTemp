@@ -1,4 +1,14 @@
 #!/usr/bin/python3
+
+"""
+# ClockTemp - Copyright (c) 2025 Arthur Dantas
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# See <https://www.gnu.org/licenses/> for details.
+"""
+
 from datetime import datetime
 from temperature import get_weather
 from clock import render_time
@@ -43,7 +53,7 @@ def main(stdscr):
 
     last_time = ""
     last_temp_update = 0
-    current_temp = "N/A"  # If temperature isn't avaiable
+    current_temp = "N/A"  # If temperature isn't available
 
     while True:
         start_time = time.time()
@@ -53,7 +63,8 @@ def main(stdscr):
             lat = args.lat
             lon = args.lon
             current_temp = get_weather(lat, lon)
-            if current_temp != "N/A":
+            # Convert temperature to fahrenheit or stay in celsius
+            if isinstance(current_temp, (int, float)):
                 if args.tu == "f":
                     temp_format = (current_temp * 9/5) + 32
                 else:

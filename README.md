@@ -49,10 +49,10 @@ Since ClockTemp has many customization options, you can create an alias in Bashr
 |:-------:|:-------:|:-------:|:--------:|
 | -tf     | 12 / 24 |   12    | Change time format between 12-hour and 24-hour |
 | -df     | MM/DD / DD/MM|   MM/DD    | Change date format between MM/DD/YYYY and DD/MM/YYYY |
-| -tu     | c / f |   c    | Change temperature unity between Celsius and Fahrenheit |
+| -tu     | c / f |   c    | Change temperature unit between Celsius and Fahrenheit |
 | -s      | true / false |   true    | Show or hide seconds |
-| -lat    | None |   None    | Use user's latitude to get weather data from Open-Meteo API |
-| -lon    | None |   None    | Use user's longitude to get weather data from Open-Meteo API |
+| -lat    | None |   0    | Use user's latitude to get weather data from Open-Meteo API |
+| -lon    | None |   0    | Use user's longitude to get weather data from Open-Meteo API |
 | -color  | white / red / yellow / green / cyan / blue / magenta |   White    | Change program color scheme |
 
 Example command
