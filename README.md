@@ -36,7 +36,7 @@ Since ClockTemp has many customization options, you can create an alias in Bashr
  ```
 2. At the end of the file add your custom configuration
  ```
- alias clocktemp='clocktemp -tf YOUR_TIME_FORMAT -df YOUR_DATE_FORMAT -tu YOUR_TEMPERATURE_UNIT -s SHOW_OR_HIDE_SECONDS -lat YOUR_LATITUDE -lon YOUR_LONGITUDE -c YOUR_COLOR'
+ alias clocktemp='clocktemp -tf YOUR_TIME_FORMAT -df YOUR_DATE_FORMAT -tu YOUR_TEMPERATURE_UNIT -s SHOW_OR_HIDE_SECONDS -lat YOUR_LATITUDE -lon YOUR_LONGITUDE -c YOUR_TEXT_COLOR -b YOUR_BACKGROUND_COLOR'
  ```
 3. Save your changes pressing <code>CTRL + O</code> > <code>ENTER</code> and exit with <code>CTRL + X</code>
 
@@ -65,7 +65,7 @@ Since ClockTemp has many customization options, you can create an alias in Bashr
 
 Example command
  ```
- clocktemp -tf 24 -df dd/mm -tu c -s true -lat 12.345 -lon -67.891 -c cyan
+ clocktemp -tf 24 -df dd/mm -tu c -s true -lat 12.345 -lon -67.891 -c cyan -b default
  ```
 
 ## Resources used
