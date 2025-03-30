@@ -60,6 +60,7 @@ Since ClockTemp has many customization options, you can create an alias in Bashr
 | -lat    | Any latitude |   0    | Use the user's latitude to get weather data from Open-Meteo API |
 | -lon    | Any longitude |   0    | Use the user's longitude to get weather data from Open-Meteo API |
 | -c      | white / red / yellow / green / cyan / blue / magenta |   white    | Change program color scheme |
+| q       | None | None | Quit ClockTemp (only work on program) |
 
 Example command
  ```
