@@ -110,12 +110,12 @@ def main(stdscr):
         date_format = "%m/%d/%Y" if args.df == "mm/dd" else "%d/%m/%Y"
         current_date = datetime.today().strftime(date_format)
         if args.tu == "f" and temp_format != "N/A":
-            temp_unity = "ºF"
+            temp_unit = "ºF"
         elif args.tu == "c" and temp_format != "N/A":
-            temp_unity = "ºC"
+            temp_unit = "ºC"
         else:
-            temp_unity = ""
-        dateTemp = f"{current_date} | {temp_format:.1f}{temp_unity}" if isinstance(temp_format, (int, float)) else f"{current_date} | {temp_format}{temp_unity}"
+            temp_unit = ""
+        dateTemp = f"{current_date} | {temp_format:.1f}{temp_unit}" if isinstance(temp_format, (int, float)) else f"{current_date} | {temp_format}{temp_unit}"
 
         # Hour format based on flag
         if args.tf == "24" and args.s == "true":

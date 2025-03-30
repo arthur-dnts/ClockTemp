@@ -1,3 +1,9 @@
+"""
+# clock.py - Copyright (c) 2025 Arthur Dantas
+# This file is part of ClockTemp, licensed under the GNU General Public License v3.
+# See <https://www.gnu.org/licenses/> for details.
+"""
+
 import time
 
 """
