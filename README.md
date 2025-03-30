@@ -57,7 +57,7 @@ Since ClockTemp has many customization options, you can create an alias in Bashr
 
 Example command
  ```
- clocktemp -tf 24 -dt DD/MM -tu c -s true -lat 12.345 -lon -67.891 -color cyan
+ clocktemp -tf 24 -df DD/MM -tu c -s true -lat 12.345 -lon -67.891 -color cyan
  ```
 
 ## Resources used
