@@ -25,8 +25,9 @@ def parse_args():
     parser.add_argument("-s", default="true", help="Show/Hide seconds (default=True)")
     parser.add_argument("-lat", default="0", help="Latitude of your current location")
     parser.add_argument("-lon", default="0", help="Longitude of your current location")
-    parser.add_argument("-c", default="white", help="Clock color scheme: white (default), red, yellow, green, cyan, blue, magenta")
-    
+    parser.add_argument("-c", default="white", help="Clock color scheme: white (default), black, red, yellow, green, cyan, blue, magenta")
+    parser.add_argument("-b", default="default", help="Background color scheme: default (terminal default), white, black, red, yellow, green, cyan, blue, magenta")
+
     args = parser.parse_args()
 
     # Convert to lowercase and validate
@@ -34,7 +35,8 @@ def parse_args():
     valid_df = {"dd/mm", "mm/dd"}
     valid_tu = {"c", "f"}
     valid_s = {"true", "false"}
-    valid_colors = {"white", "red", "yellow", "green", "cyan", "blue", "magenta"}
+    valid_colors = {"white", "black", "red", "yellow", "green", "cyan", "blue", "magenta"}
+    valid_bg_colors = {"default", "white", "black", "red", "yellow", "green", "cyan", "blue", "magenta"}
 
     args.tf = args.tf.lower()
     if args.tf not in valid_tf:
@@ -56,27 +58,49 @@ def parse_args():
     if args.c not in valid_colors:
         parser.error(f"Invalid color: {args.c}. Choose from {list(valid_colors)}")
 
+    args.b = args.b.lower()
+    if args.b not in valid_bg_colors:
+        parser.error(f"Invalid color: {args.b}. Choose from {list(valid_bg_colors)}")
+
     return args
 
 def main(stdscr):
     args = parse_args()   # Capture args from command line
 
-    # Change clock color scheme
-    if args.c == "white":
-        curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
-    elif args.c == "red":
-        curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
-    elif args.c == "yellow":
-        curses.init_pair(1, curses.COLOR_YELLOW, curses.COLOR_BLACK)
-    elif args.c == "green":
-        curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
-    elif args.c == "cyan":
-        curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK)
-    elif args.c == "blue":
-        curses.init_pair(1, curses.COLOR_BLUE, curses.COLOR_BLACK)
-    else:
-        curses.init_pair(1, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
-    stdscr.attron(curses.color_pair(1))
+    # Map clock and background colors
+    color_map = {
+        "white": curses.COLOR_WHITE,
+        "black": curses.COLOR_BLACK,
+        "red": curses.COLOR_RED,
+        "yellow": curses.COLOR_YELLOW,
+        "green": curses.COLOR_GREEN,
+        "cyan": curses.COLOR_CYAN,
+        "blue": curses.COLOR_BLUE,
+        "magenta": curses.COLOR_MAGENTA
+    }
+
+    bg_color_map = {
+        "default": -1, # -1 = terminal default color
+        "white": curses.COLOR_WHITE,
+        "black": curses.COLOR_BLACK,
+        "red": curses.COLOR_RED,
+        "yellow": curses.COLOR_YELLOW,
+        "green": curses.COLOR_GREEN,
+        "cyan": curses.COLOR_CYAN,
+        "blue": curses.COLOR_BLUE,
+        "magenta": curses.COLOR_MAGENTA
+    }
+
+    curses.start_color()
+    curses.use_default_colors()
+
+    if curses.has_colors():
+        text_color = color_map[args.c]
+        backgrond_color = bg_color_map[args.b]
+        curses.init_pair(1, text_color, backgrond_color)
+        # Apply background color to the entire screen if not default
+        if args.b != "default":
+            stdscr.bkgd(' ', curses.color_pair(1))
 
     curses.curs_set(0)    # Remove cursor
     stdscr.timeout(1000)  # 1 second tick
@@ -84,6 +108,7 @@ def main(stdscr):
     last_time = ""
     last_temp_update = 0
     current_temp = "N/A"  # If temperature isn't available
+    last_height, last_width = stdscr.getmaxyx()
 
     while True:
         start_time = time.time()
@@ -105,6 +130,11 @@ def main(stdscr):
 
         # Terminal size
         height, width = stdscr.getmaxyx()
+        
+        # Check if the window size has changed.
+        if height != last_height or width != last_width:
+            stdscr.clear()  # If the screen size changes clear it to avoid artifacts.
+            last_height, last_width = height, width
 
         # Date and Temperature
         date_format = "%m/%d/%Y" if args.df == "mm/dd" else "%d/%m/%Y"
@@ -142,12 +172,17 @@ def main(stdscr):
 
         dateTemp_start_x = (width - dateTemp_width) // 2
 
-        if "\n".join(current_time_lines) != last_time:
-            stdscr.clear()
+        current_time_str = "\n".join(current_time_lines)
+        if current_time_str != last_time or dateTemp != last_temp:
+            # Overwrites only the necessary areas with the defined color
             for i, line in enumerate(current_time_lines):
-                stdscr.addstr(clock_start_y + i, clock_start_x, line)
-            last_time = "\n".join(current_time_lines)
-            stdscr.addstr(clock_start_y + 6, dateTemp_start_x - 1, dateTemp)
+                stdscr.addstr(clock_start_y + i, clock_start_x, " " * clock_width, curses.color_pair(1))
+                stdscr.addstr(clock_start_y + i, clock_start_x, line, curses.color_pair(1))
+            last_time = current_time_str
+
+            stdscr.addstr(clock_start_y + 6, dateTemp_start_x - 1, " " * dateTemp_width, curses.color_pair(1))
+            stdscr.addstr(clock_start_y + 6, dateTemp_start_x - 1, dateTemp, curses.color_pair(1))
+            last_temp = dateTemp
 
         # Refresh terminal
         stdscr.refresh()
