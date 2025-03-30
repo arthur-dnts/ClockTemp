@@ -19,14 +19,44 @@ import time
 def parse_args():
     # Args to command line
     parser = argparse.ArgumentParser(description="ClockTemp is a simple and customizable TUI clock based on tty-clock")
-    parser.add_argument("-tf", choices=["12", "24"], default="12", help="Time format: 12 (default) for 12-hour clock, 24 for 24-hour clock")
-    parser.add_argument("-df", choices=["dd/mm", "mm/dd"], default="mm/dd", help="Date format: dd/mm for day/month/year, mm/dd (default) for month/day/year")
-    parser.add_argument("-tu", choices=["c", "f"], default="c", help="Temperature unity: c (default) for Celsius, f for fahrenheit")
-    parser.add_argument("-s", choices=["true", "false"], default="true", help="Show/Hide seconds (default=True)")
+    parser.add_argument("-tf", default="12", help="Time format: 12 (default) for 12-hour clock, 24 for 24-hour clock")
+    parser.add_argument("-df", default="mm/dd", help="Date format: dd/mm for day/month/year, mm/dd (default) for month/day/year")
+    parser.add_argument("-tu", default="c", help="Temperature unit: c (default) for Celsius, f for Fahrenheit")
+    parser.add_argument("-s", default="true", help="Show/Hide seconds (default=True)")
     parser.add_argument("-lat", default="0", help="Latitude of your current location")
     parser.add_argument("-lon", default="0", help="Longitude of your current location")
-    parser.add_argument("-c", choices=["white", "red", "yellow", "green", "cyan", "blue", "magenta"], default="white", help="Clock color scheme: white (default), red, yellow, green, cyan, blue and magenta")
-    return parser.parse_args()
+    parser.add_argument("-c", default="white", help="Clock color scheme: white (default), red, yellow, green, cyan, blue, magenta")
+    
+    args = parser.parse_args()
+
+    # Convert to lowercase and validate
+    valid_tf = {"12", "24"}
+    valid_df = {"dd/mm", "mm/dd"}
+    valid_tu = {"c", "f"}
+    valid_s = {"true", "false"}
+    valid_colors = {"white", "red", "yellow", "green", "cyan", "blue", "magenta"}
+
+    args.tf = args.tf.lower()
+    if args.tf not in valid_tf:
+        parser.error(f"Invalid time format: {args.tf}. Choose from {list(valid_tf)}")
+
+    args.df = args.df.lower()
+    if args.df not in valid_df:
+        parser.error(f"Invalid date format: {args.df}. Choose from {list(valid_df)}")
+
+    args.tu = args.tu.lower()
+    if args.tu not in valid_tu:
+        parser.error(f"Invalid temperature unit: {args.tu}. Choose from {list(valid_tu)}")
+
+    args.s = args.s.lower()
+    if args.s not in valid_s:
+        parser.error(f"Invalid seconds option: {args.s}. Choose from {list(valid_s)}")
+
+    args.c = args.c.lower()
+    if args.c not in valid_colors:
+        parser.error(f"Invalid color: {args.c}. Choose from {list(valid_colors)}")
+
+    return args
 
 def main(stdscr):
     args = parse_args()   # Capture args from command line
