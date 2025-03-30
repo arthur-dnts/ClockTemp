@@ -76,4 +76,3 @@ ln -sf "$DEST_DIR/clocktemp.py" /usr/local/bin/clocktemp || {
 
 # Confirmation message
 echo "Installation completed! Try running 'clocktemp' in the terminal."
-echo "Use 'clocktemp -h' for help on available options."
