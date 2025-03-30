@@ -1,6 +1,6 @@
 <div align="center">
  <h1>ClockTemp</h1>
- <b>ClockTemp</b> is a simple clock based on <a href="https://github.com/xorg62/tty-clock">tty-clock</a> that displays the date, time, and temperature.
+ <b>ClockTemp</b> is a simple clock based on <a href="https://github.com/xorg62/tty-clock">tty-clock</a> that displays the date, time and temperature.
  <img src="assets/Screenshot_1.png">
 </div>
 
@@ -36,28 +36,34 @@ Since ClockTemp has many customization options, you can create an alias in Bashr
  ```
 2. At the end of the file add your custom configuration
  ```
- alias clocktemp='clocktemp -tf YOUR_TIME_FORMAT -df YOUR_DATE_FORMAT -color YOUR_COLOR -tu YOUR_TEMPERATURE_UNITY -lat YOUR_LATITUDE -lon YOUR_LONGITUDE'
+ alias clocktemp='clocktemp -tf YOUR_TIME_FORMAT -df YOUR_DATE_FORMAT -tu YOUR_TEMPERATURE_UNIT -s SHOW_OR_HIDE_SECONDS -lat YOUR_LATITUDE -lon YOUR_LONGITUDE -c YOUR_COLOR'
  ```
 3. Save your changes pressing <code>CTRL + O</code> > <code>ENTER</code> and exit with <code>CTRL + X</code>
-4. Apply changes
+
+4. Apply changes on your terminal
  ```
  source ~/.bashrc
  ```
+5. Now whenever you run the <code>clocktemp</code> command without arguments the alias will cause the previously saved settings to be loaded.
+ ```
+ clocktemp
+ ```
+
 ## Command list
 
 | COMMAND | CHOICES | DEFAULT | FUNCTION |
 |:-------:|:-------:|:-------:|:--------:|
 | -tf     | 12 / 24 |   12    | Change time format between 12-hour and 24-hour |
-| -df     | MM/DD / DD/MM|   MM/DD    | Change date format between MM/DD/YYYY and DD/MM/YYYY |
+| -df     | mm/dd / dd/mm |   mm/dd    | Change date format between MM/DD/YYYY and DD/MM/YYYY |
 | -tu     | c / f |   c    | Change temperature unit between Celsius and Fahrenheit |
 | -s      | true / false |   true    | Show or hide seconds |
-| -lat    | None |   0    | Use user's latitude to get weather data from Open-Meteo API |
-| -lon    | None |   0    | Use user's longitude to get weather data from Open-Meteo API |
-| -c      | white / red / yellow / green / cyan / blue / magenta |   White    | Change program color scheme |
+| -lat    | Any latitude |   0    | Use the user's latitude to get weather data from Open-Meteo API |
+| -lon    | Any longitude |   0    | Use the user's longitude to get weather data from Open-Meteo API |
+| -c      | white / red / yellow / green / cyan / blue / magenta |   white    | Change program color scheme |
 
 Example command
  ```
- clocktemp -tf 24 -df DD/MM -tu c -s true -lat 12.345 -lon -67.891 -color cyan
+ clocktemp -tf 24 -df dd/mm -tu c -s true -lat 12.345 -lon -67.891 -c cyan
  ```
 
 ## Resources used
