@@ -25,24 +25,24 @@ def parse_args():
     parser.add_argument("-s", choices=["true", "false"], default="true", help="Show/Hide seconds (default=True)")
     parser.add_argument("-lat", default="0", help="Latitude of your current location")
     parser.add_argument("-lon", default="0", help="Longitude of your current location")
-    parser.add_argument("-color", choices=["white", "red", "yellow", "green", "cyan", "blue", "magenta"], default="white", help="Clock color scheme: white (default), red, yellow, green, cyan, blue and magenta")
+    parser.add_argument("-c", choices=["white", "red", "yellow", "green", "cyan", "blue", "magenta"], default="white", help="Clock color scheme: white (default), red, yellow, green, cyan, blue and magenta")
     return parser.parse_args()
 
 def main(stdscr):
     args = parse_args()   # Capture args from command line
 
     # Change clock color scheme
-    if args.color == "white":
+    if args.c == "white":
         curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
-    elif args.color == "red":
+    elif args.c == "red":
         curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
-    elif args.color == "yellow":
+    elif args.c == "yellow":
         curses.init_pair(1, curses.COLOR_YELLOW, curses.COLOR_BLACK)
-    elif args.color == "green":
+    elif args.c == "green":
         curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
-    elif args.color == "cyan":
+    elif args.c == "cyan":
         curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK)
-    elif args.color == "blue":
+    elif args.c == "blue":
         curses.init_pair(1, curses.COLOR_BLUE, curses.COLOR_BLACK)
     else:
         curses.init_pair(1, curses.COLOR_MAGENTA, curses.COLOR_BLACK)

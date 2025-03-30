@@ -53,7 +53,7 @@ Since ClockTemp has many customization options, you can create an alias in Bashr
 | -s      | true / false |   true    | Show or hide seconds |
 | -lat    | None |   0    | Use user's latitude to get weather data from Open-Meteo API |
 | -lon    | None |   0    | Use user's longitude to get weather data from Open-Meteo API |
-| -color  | white / red / yellow / green / cyan / blue / magenta |   White    | Change program color scheme |
+| -c      | white / red / yellow / green / cyan / blue / magenta |   White    | Change program color scheme |
 
 Example command
  ```
