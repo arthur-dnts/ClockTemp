@@ -106,6 +106,7 @@ def main(stdscr):
     stdscr.timeout(1000)  # 1 second tick
 
     last_time = ""
+    last_temp = ""
     last_temp_update = 0
     current_temp = "N/A"  # If temperature isn't available
     last_height, last_width = stdscr.getmaxyx()
@@ -130,10 +131,11 @@ def main(stdscr):
 
         # Terminal size
         height, width = stdscr.getmaxyx()
-        
-        # Check if the window size has changed.
-        if height != last_height or width != last_width:
-            stdscr.clear()  # If the screen size changes clear it to avoid artifacts.
+
+        # Check if the window size has changed
+        resized = height != last_height or width != last_width
+        if resized:
+            stdscr.clear()  # Clear screen to avoid artifacts on resize
             last_height, last_width = height, width
 
         # Date and Temperature
@@ -173,7 +175,7 @@ def main(stdscr):
         dateTemp_start_x = (width - dateTemp_width) // 2
 
         current_time_str = "\n".join(current_time_lines)
-        if current_time_str != last_time or dateTemp != last_temp:
+        if current_time_str != last_time or dateTemp != last_temp or resized:
             # Overwrites only the necessary areas with the defined color
             for i, line in enumerate(current_time_lines):
                 stdscr.addstr(clock_start_y + i, clock_start_x, " " * clock_width, curses.color_pair(1))
