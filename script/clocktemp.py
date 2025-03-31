@@ -188,7 +188,7 @@ def main(stdscr):
 
         # Refresh terminal
         stdscr.refresh()
-
+        
         # Close TUI pressing 'q'
         key = stdscr.getch()
         if key == ord('q'):

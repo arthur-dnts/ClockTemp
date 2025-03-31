@@ -14,6 +14,8 @@ def get_weather(lat=0, lon=0):
         url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true"
         try:
             response = requests.get(url)
-            return response.json()["current_weather"]["temperature"]
+            temp = response.json()["current_weather"]["temperature"]
+            temp_formated = "{:04.1f}".format(float(temp)) # Ensures the temperature has 4 characters
+            return temp_formated
         except requests.RequestException as e:
             return f"Error: {e}"
