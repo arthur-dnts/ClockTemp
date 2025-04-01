@@ -1,6 +1,6 @@
 <div align="center">
  <h1>ClockTemp</h1>
- <b>ClockTemp</b> is a simple clock based on <a href="https://github.com/xorg62/tty-clock">tty-clock</a> that displays the time, date and temperature.
+ <b>ClockTemp</b> is a simple clock inspired by <a href="https://github.com/xorg62/tty-clock">tty-clock</a> that displays the time, date and temperature.
  <img src="assets/Screenshot_1.png">
 </div>
 
@@ -104,4 +104,7 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ```
+
+## License
+
 The <code>ClockTemp</code> project as a whole is licensed under the GNU General Public License v3 (GPLv3). See the LICENSE file for details.
