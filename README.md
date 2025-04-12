@@ -68,6 +68,11 @@ Example command
  clocktemp -tf 24 -df dd/mm -tu c -s true -lat 12.345 -lon -67.891 -c cyan -b default
  ```
 
+## Future updates?
+
+- [ ] Add stopwatch and timer functions
+- [ ] Add an integrated calendar
+
 ## Resources used
 
 This project was made using <code>Python</code> version 3.10.12, the <code>Requests</code> library and <code>Open-Meteo</code> API to collect weather data.
