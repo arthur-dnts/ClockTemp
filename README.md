@@ -55,11 +55,11 @@ Since ClockTemp has many customization options, you can create an alias in Bashr
 > [!NOTE]
 If you want to remove ClockTemp from your environment variables, follow these steps:
 
-1. Run this command to clear the clocktemp folder from local/bin
+1. Run this command to remove the clocktemp folder from local/bin
  ```
  sudo rm /usr/local/bin/clocktemp
  ```
-2. Run this another command to clear the clocktemp folder from local/share
+2. Run this another command to remove the clocktemp folder from local/share
  ```
  sudo rm -r /usr/local/share/clocktemp
  ```
