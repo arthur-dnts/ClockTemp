@@ -44,6 +44,7 @@ def parse_args():
     valid_colors = {"white", "black", "red", "yellow", "green", "cyan", "blue", "magenta"}
     valid_bg_colors = {"default", "white", "black", "red", "yellow", "green", "cyan", "blue", "magenta"}
 
+    # Convert arguments to lowercase to ensure case-insensitivity
     args.tf = args.tf.lower()
     if args.tf not in valid_tf:
         parser.error(f"Invalid time format: {args.tf}. Choose from {list(valid_tf)}")
@@ -87,7 +88,7 @@ def print_help():
         -c COLOR            Text color: white (default), black, red, yellow, green, cyan, blue, magenta
         -b COLOR            Background color: default (terminal default), white, black, red, yellow, green, cyan, blue, magenta
 
-        Interactive keys:
+        keys:
         m                   Toggle between clock and calendar modes
         < or ,              Show previous month (calendar mode only)
         > or .              Show next month (calendar mode only)
@@ -117,7 +118,7 @@ def main(stdscr, args):
     calendar_year = datetime.now().year
     calendar_month = datetime.now().month
 
-    # Map clock and background colors
+    # Map text color
     color_map = {
         "white": curses.COLOR_WHITE,
         "black": curses.COLOR_BLACK,
@@ -129,8 +130,9 @@ def main(stdscr, args):
         "magenta": curses.COLOR_MAGENTA
     }
 
+    # Map background color
     bg_color_map = {
-        "default": -1,
+        "default": -1, # terminal default color
         "white": curses.COLOR_WHITE,
         "black": curses.COLOR_BLACK,
         "red": curses.COLOR_RED,
@@ -154,20 +156,21 @@ def main(stdscr, args):
     if args.b != "default":
         stdscr.bkgd(' ', curses.color_pair(1))
 
-    curses.curs_set(0)
-    stdscr.timeout(1000)
+    curses.curs_set(0) # Hide cursor
+    stdscr.timeout(1000) # 1 second ticker
 
     while True:
         start_time = time.time()
         stdscr.clear()
 
-        height, width = stdscr.getmaxyx()
-        resized = height != last_height or width != last_width
+        height, width = stdscr.getmaxyx() # Get terminal size
+        resized = height != last_height or width != last_width # Check if terminal size has changed
         if resized:
-            stdscr.clear()
+            stdscr.clear() # Clear terminal to avoid artifacts
             last_height, last_width = height, width
 
         if mode == "clock":
+            # Update temperature every 10 minutes
             if time.time() - last_temp_update >= 600:
                 lat = args.lat
                 lon = args.lon
@@ -176,17 +179,14 @@ def main(stdscr, args):
                     if isinstance(current_temp, (int, float)):
                         if args.tu == "f":
                             temp_format = (current_temp * 9/5) + 32
+                            temp_format = "{:04.1f}".format(temp_format) # Ensures the temperature has 4 characters
                         else:
-                            temp_format = current_temp
+                            temp_format = "{:04.1f}".format(float(current_temp)) # Ensures the temperature has 4 characters and keep it in celsius
                     else:
-                        temp_format = current_temp
+                        temp_format = "N/A"
                     last_temp_update = time.time()
                 except:
-                    current_temp = "N/A"
-
-            # Change date format based on args.df
-            date_format = "%m/%d/%Y" if args.df == "mm/dd" else "%d/%m/%Y"
-            current_date = datetime.today().strftime(date_format)
+                    temp_format = "N/A"
 
             # Change temperature format based on args.tu
             if args.tu == "f" and temp_format != "N/A":
@@ -195,7 +195,12 @@ def main(stdscr, args):
                 temp_unit = "ºC"
             else:
                 temp_unit = ""
-            dateTemp = f"{current_date} | {temp_format:.1f}{temp_unit}" if isinstance(temp_format, (int, float)) else f"{current_date} | {temp_format}{temp_unit}"
+
+            # Change date format based on args.df
+            date_format = "%m/%d/%Y" if args.df == "mm/dd" else "%d/%m/%Y"
+            current_date = datetime.today().strftime(date_format)
+
+            dateTemp = f"{current_date} | {temp_format}{temp_unit}" if isinstance(temp_format, (int, float)) else f"{current_date} | {temp_format}{temp_unit}"
 
             # Change time format based on args.tf and args.s
             if args.tf == "24" and args.s == "true":
@@ -219,7 +224,7 @@ def main(stdscr, args):
                 dateTemp_start_x = (width - dateTemp_width) // 2
 
                 current_time_str = "\n".join(current_time_lines)
-                # Sempre renderizar o relógio para evitar que ele desapareça
+                # Always update the clock, date and temperature (ensure that the data is displayed when -s is false)
                 if clock_start_y >= 0 and clock_start_x >= 0:
                     for i, line in enumerate(current_time_lines):
                         if clock_start_y + i < height and clock_start_x + clock_width <= width:
@@ -242,6 +247,7 @@ def main(stdscr, args):
                 calendar_start_y = (height - calendar_height) // 2
                 calendar_start_x = (width - calendar_width) // 2
 
+                # Centralize calendar message on terminal
                 calendar_msg = "< Prev | Next >"
                 calendar_msg_start_x = (width - len(calendar_msg)) // 2
                 calendar_msg_start_y = calendar_start_y + calendar_height + 1

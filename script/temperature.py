@@ -15,7 +15,6 @@ def get_weather(lat=0, lon=0):
         try:
             response = requests.get(url)
             temp = response.json()["current_weather"]["temperature"]
-            temp_formated = "{:04.1f}".format(float(temp)) # Ensures the temperature has 4 characters
-            return temp_formated
+            return float(temp)
         except requests.RequestException as e:
             return f"Error: {e}"

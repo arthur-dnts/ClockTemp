@@ -83,12 +83,12 @@ Example command:
  clocktemp -tf 24 -df dd/mm -tu c -s true -lat 12.345 -lon -67.891 -c cyan -b default
  ```
 
-| SHORTCUT | FUNCTION |
-|:--------:|:--------:|
-| m        | Toggle between clock and calendar modes |
-| < / ,    | Previous month (only work on calendar mode) |
-| > / .    | Next month (only work on calendar mode) |
-| q        | Quit ClockTemp |
+|  KEYS  | FUNCTION |
+|:------:|:--------:|
+| m      | Toggle between clock and calendar modes |
+| < / ,  | Previous month (only work on calendar mode) |
+| > / .  | Next month (only work on calendar mode) |
+| q      | Quit ClockTemp |
 
 ## Future updates?
 
