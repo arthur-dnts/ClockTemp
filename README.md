@@ -2,6 +2,7 @@
  <h1>ClockTemp</h1>
  <b>ClockTemp</b> is a simple clock inspired by <a href="https://github.com/xorg62/tty-clock">tty-clock</a> that displays the time, date and temperature.
  <img src="assets/Screenshot_1.png">
+ <img src="assets/Screenshot_2.png">
 </div>
 
 ## How to use
@@ -49,10 +50,25 @@ Since ClockTemp has many customization options, you can create an alias in Bashr
  clocktemp
  ```
 
-## Command list
+## Remove ClockTemp
+
+> [!NOTE]
+If you want to remove ClockTemp from your environment variables, follow these steps:
+
+1. Run this command to clear the clocktemp folder from local/bin
+ ```
+ sudo rm /usr/local/bin/clocktemp
+ ```
+2. Run this another command to clear the clocktemp folder from local/share
+ ```
+ sudo rm -r /usr/local/share/clocktemp
+ ```
+
+## Commands and Shortcuts list
 
 | COMMAND | CHOICES | DEFAULT | FUNCTION |
 |:-------:|:-------:|:-------:|:--------:|
+| -h, --help | None | None | Show help message and exit |
 | -tf     | 12 / 24 |   12    | Change time format between 12-hour and 24-hour |
 | -df     | mm/dd / dd/mm |   mm/dd    | Change date format between MM/DD/YYYY and DD/MM/YYYY |
 | -tu     | c / f |   c    | Change temperature unit between Celsius and Fahrenheit |
@@ -60,22 +76,25 @@ Since ClockTemp has many customization options, you can create an alias in Bashr
 | -lat    | Any latitude |   0    | Use the user's latitude to get weather data from Open-Meteo API |
 | -lon    | Any longitude |   0    | Use the user's longitude to get weather data from Open-Meteo API |
 | -c      | white / black / red / yellow / green / cyan / blue / magenta |   white    | Change text color |
-| -b      | default / white / black / red / yellow / green / cyan / blue / magenta |   default (terminal)    | Change background color |
-| q       | None | None | Quit ClockTemp (only work on program) |
+| -b      | default / white / black / red / yellow / green / cyan / blue / magenta |   default    | Change background color |
 
-Example command
+Example command:
  ```
  clocktemp -tf 24 -df dd/mm -tu c -s true -lat 12.345 -lon -67.891 -c cyan -b default
  ```
 
+| SHORTCUT | FUNCTION |
+|:--------:|:--------:|
+| m        | Toggle between clock and calendar modes |
+| < / ,    | Previous month (only work on calendar mode) |
+| > / .    | Next month (only work on calendar mode) |
+| q        | Quit ClockTemp |
+
 ## Future updates?
 
+- [x] Add an integrated calendar
+- [ ] Add reminders in the calendar tab
 - [ ] Add stopwatch and timer functions
-- [ ] Add an integrated calendar
-
-## Resources used
-
-This project was made using <code>Python</code> version 3.10.12, the <code>Requests</code> library and <code>Open-Meteo</code> API to collect weather data.
 
 ## Credits
 
@@ -109,6 +128,10 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ```
+
+## Resources used
+
+This project was made using <code>Python</code> version 3.10.12, the <code>Requests</code> library and <code>Open-Meteo</code> API to collect weather data.
 
 ## License
 

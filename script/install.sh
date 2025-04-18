@@ -51,6 +51,10 @@ cp "$SOURCE_DIR/clocktemp.py" "$DEST_DIR/" || {
     echo "Error: Failed to copy clocktemp.py"
     exit 1
 }
+cp "$SOURCE_DIR/cal.py" "$DEST_DIR/" || {
+    echo "Error: Failed to copy cal.py"
+    exit 1
+}
 cp "$SOURCE_DIR/temperature.py" "$DEST_DIR/" || {
     echo "Error: Failed to copy temperature.py"
     exit 1
