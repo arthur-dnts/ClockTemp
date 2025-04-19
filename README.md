@@ -64,7 +64,7 @@ If you want to remove ClockTemp from your environment variables, follow these st
  sudo rm -r /usr/local/share/clocktemp
  ```
 
-## Commands and Shortcuts list
+## Commands and Interactive Keys list
 
 | COMMAND | CHOICES | DEFAULT | FUNCTION |
 |:-------:|:-------:|:-------:|:--------:|
