@@ -11,8 +11,9 @@
 
 from temperature import get_weather
 from cal import render_calendar
-from clock import render_time
+from clock import render_clock, render_stop_timer
 from datetime import datetime
+from curses.textpad import Textbox, rectangle
 import argparse
 import curses
 import time
@@ -89,7 +90,12 @@ def print_help():
         -b COLOR            Background color: default (terminal default), white, black, red, yellow, green, cyan, blue, magenta
 
         keys:
-        m                   Toggle between clock and calendar modes
+        w                   Switch to clock mode
+        c                   Switch to calendar mode
+        s                   Switch to stopwatch mode
+        t                   Switch to timer mode
+        SPACEBAR            Pause/Resume (in stopwatch or timer mode)
+        r                   Reset (in stopwatch or timer mode)
         < or ,              Show previous month (calendar mode only)
         > or .              Show next month (calendar mode only)
         q                   Quit the program
@@ -107,16 +113,26 @@ def print_help():
     sys.exit(0)
 
 def main(stdscr, args):
-
-    # Initialize variables
+    # Initialize variables for clock and calendar
     last_time = ""
     last_temp = ""
-    last_temp_update = 0
-    current_temp = "N/A"
-    last_height, last_width = stdscr.getmaxyx()
-    mode = "clock"
-    calendar_year = datetime.now().year
-    calendar_month = datetime.now().month
+    last_temp_update = 0                         # Temperature update time
+    current_temp = "N/A"                         # If temperature is not available
+    last_height, last_width = stdscr.getmaxyx()  # Get terminal size
+    mode = "clock"                               # Default mode
+    calendar_year = datetime.now().year          # Calendar current year
+    calendar_month = datetime.now().month        # Calendar current month
+
+    # Initialize variables for stopwatch
+    stopwatch_start = time.time()
+    stopwatch_accumulated = 0
+    stopwatch_running = False
+
+    # Initialize variables for timer
+    timer_running = False
+    total_time = 0
+    initial_time = 0
+    timer_input_mode = False  # Flag to control timer input screen
 
     # Map text color
     color_map = {
@@ -179,9 +195,9 @@ def main(stdscr, args):
                     if isinstance(current_temp, (int, float)):
                         if args.tu == "f":
                             temp_format = (current_temp * 9/5) + 32
-                            temp_format = "{:04.1f}".format(temp_format) # Ensures the temperature has 4 characters
+                            temp_format = "{:04.1f}".format(temp_format)
                         else:
-                            temp_format = "{:04.1f}".format(float(current_temp)) # Ensures the temperature has 4 characters and keep it in celsius
+                            temp_format = "{:04.1f}".format(float(current_temp))
                     else:
                         temp_format = "N/A"
                     last_temp_update = time.time()
@@ -214,7 +230,7 @@ def main(stdscr, args):
 
             try:
                 # Centralize clock, date and temperature on terminal
-                current_time_lines = render_time(time_format)
+                current_time_lines = render_clock(time_format)
                 clock_height = len(current_time_lines)
                 clock_width = len(current_time_lines[0]) if current_time_lines else 0
                 clock_start_y = (height - clock_height) // 2
@@ -224,7 +240,6 @@ def main(stdscr, args):
                 dateTemp_start_x = (width - dateTemp_width) // 2
 
                 current_time_str = "\n".join(current_time_lines)
-                # Always update the clock, date and temperature (ensure that the data is displayed when -s is false)
                 if clock_start_y >= 0 and clock_start_x >= 0:
                     for i, line in enumerate(current_time_lines):
                         if clock_start_y + i < height and clock_start_x + clock_width <= width:
@@ -237,7 +252,7 @@ def main(stdscr, args):
                 last_temp = dateTemp
             except (curses.error, ValueError, IndexError):
                 pass
-
+        
         elif mode == "calendar":
             try:
                 # Centralize calendar on terminal
@@ -269,20 +284,199 @@ def main(stdscr, args):
             except curses.error:
                 pass
 
+        elif mode == "stopwatch":
+            try:
+                if stopwatch_running:
+                    total_time = int(time.time() - stopwatch_start + stopwatch_accumulated)
+                else:
+                    total_time = int(stopwatch_accumulated)
+
+                # Centralize stopwatch on terminal
+                current_lines = render_stop_timer(total_time, stopwatch_running)
+                stopwatch_height = len(current_lines)
+                stopwatch_width = len(current_lines[0]) if current_lines else 0
+                stopwatch_start_y = (height - stopwatch_height) // 2
+                stopwatch_start_x = (width - stopwatch_width) // 2
+
+                # Centralize stopwatch message on terminal
+                mode_msg = "Mode: Stopwatch"
+                pause_msg = "SPACEBAR : Pause/Resume"
+                reset_msg = "R : Reset"
+                mode_msg_start_x = (width - len(mode_msg)) // 2
+                mode_msg_start_y = (height - len(current_lines) - 4) // 2
+                pause_msg_start_x = (width - len(pause_msg)) // 2
+                reset_msg_start_x = (width - len(reset_msg)) // 2
+
+                for i, line in enumerate(current_lines):
+                    if stopwatch_start_y + i < height and stopwatch_start_x + stopwatch_width <= width:
+                        stdscr.addstr(stopwatch_start_y + i, stopwatch_start_x, " ", curses.color_pair(1))
+                        stdscr.addstr(stopwatch_start_y + i, stopwatch_start_x, line, curses.color_pair(1))
+                if stopwatch_start_y + stopwatch_height + 1 < height and pause_msg_start_x + len(pause_msg) <= width:
+                    stdscr.addstr(mode_msg_start_y, mode_msg_start_x, mode_msg, curses.color_pair(1))
+                    stdscr.addstr(stopwatch_start_y + 6, pause_msg_start_x, " " * len(pause_msg), curses.color_pair(1))
+                    stdscr.addstr(stopwatch_start_y + 6, pause_msg_start_x, pause_msg, curses.color_pair(1))
+                    stdscr.addstr(stopwatch_start_y + 7, reset_msg_start_x, reset_msg, curses.color_pair(1))
+            except:
+                pass
+
+        elif mode == "timer":
+            try:
+                if timer_input_mode:
+                    # Exit from text input screen
+                    def exit(ch):
+                        if ch == 27:  # ESC key
+                            raise KeyboardInterrupt
+                        return ch
+
+                    # Create a textbox for timer input
+                    rect_height = 1
+                    rect_width = 4
+                    rect_start_y = (height - rect_height) // 2
+                    rect_start_x = (width - rect_width - 2) // 2
+                    rect_end_y = rect_start_y + rect_height + 1
+                    rect_end_x = rect_start_x + rect_width + 1
+
+                    rectangle(stdscr, rect_start_y, rect_start_x, rect_end_y, rect_end_x)
+
+                    # Help message
+                    
+                    help_msg = "Enter time in minutes"
+                    exit_msg = "ESC : Exit"
+                    help_msg_start_y = rect_start_y + 3
+                    help_msg_start_x = (width - len(help_msg)) // 2
+                    exit_msg_start_x = (width - len(exit_msg)) // 2
+
+                    stdscr.addstr(help_msg_start_y, help_msg_start_x, help_msg, curses.color_pair(1))
+                    stdscr.addstr(help_msg_start_y + 1, exit_msg_start_x, exit_msg, curses.color_pair(1))
+
+                    win = curses.newwin(rect_height, rect_width, rect_start_y + 1, rect_start_x + 1)
+                    box = Textbox(win)
+                    curses.curs_set(1)  # Show cursor
+                    stdscr.refresh()
+                    win.refresh()
+                    box.edit(exit)  # Wait for user input
+
+                    # Convert input from minutes to seconds
+                    try:
+                        minutes = float(box.gather().strip())
+                        if minutes <= 0:
+                            mode = "clock"
+                            timer_input_mode = False
+                            curses.curs_set(0)
+                            continue
+                        total_time = int(minutes * 60)
+                        initial_time = total_time
+                        timer_running = True
+                        timer_input_mode = False
+                        curses.curs_set(0)
+                    except ValueError:
+                        mode = "clock"
+                        timer_input_mode = False
+                        curses.curs_set(0)
+                        continue
+                else:
+                    # Render timer
+                    if timer_running and total_time > 0:
+                        total_time -= 1  # Decrement time
+                    elif total_time <= 0 and timer_running:
+                        # Timer finished
+                        timer_running = False
+                        stdscr.clear()
+                        end_msg = "Timer Finished!"
+                        wait_msg = "Returning to clock mode in 5 seconds..."
+                        end_msg_start_x = (width - len(end_msg)) // 2
+                        stdscr.addstr(height // 2, (width - len(end_msg)) // 2, end_msg, curses.color_pair(1))
+                        stdscr.addstr(height // 2 + 1, (width - len(wait_msg)) // 2, wait_msg, curses.color_pair(1))
+                        stdscr.refresh()
+                        curses.beep()
+                        time.sleep(5)
+                        mode = "clock"
+                        continue
+
+                    current_lines = render_stop_timer(total_time, timer_running)
+                    timer_height = len(current_lines)
+                    timer_width = len(current_lines[0]) if current_lines else 0
+                    timer_start_y = (height - timer_height) // 2
+                    timer_start_x = (width - timer_width) // 2
+
+                    # Centralize timer messages
+                    mode_msg = "Mode: Timer"
+                    pause_msg = "SPACEBAR : Pause/Resume"
+                    reset_msg = "R : Reset"
+                    mode_msg_start_x = (width - len(mode_msg)) // 2
+                    mode_msg_start_y = (height - len(current_lines) - 4) // 2
+                    pause_msg_start_x = (width - len(pause_msg)) // 2
+                    reset_msg_start_x = (width - len(reset_msg)) // 2
+
+                    for i, line in enumerate(current_lines):
+                        if timer_start_y + i < height and timer_start_x + timer_width <= width:
+                            stdscr.addstr(timer_start_y + i, timer_start_x, " ", curses.color_pair(1))
+                            stdscr.addstr(timer_start_y + i, timer_start_x, line, curses.color_pair(1))
+                    if timer_start_y + timer_height + 1 < height and pause_msg_start_x + len(pause_msg) <= width:
+                        stdscr.addstr(timer_start_y + timer_height + 1, pause_msg_start_x, " " * len(pause_msg), curses.color_pair(1))
+                        stdscr.addstr(mode_msg_start_y, mode_msg_start_x, mode_msg, curses.color_pair(1))
+                        stdscr.addstr(timer_start_y + timer_height + 1, pause_msg_start_x, pause_msg, curses.color_pair(1))
+                        stdscr.addstr(timer_start_y + timer_height + 2, reset_msg_start_x, reset_msg, curses.color_pair(1))
+                    
+            except (KeyboardInterrupt, curses.error):
+                curses.curs_set(0)
+                mode = "clock"
+                timer_input_mode = False
+
         stdscr.refresh()
 
         key = stdscr.getch()
+
         # Handle key events
-        if key == ord("q"):
+        if key in (ord("q"), ord("Q")):    # Quit the program
             break
-        elif key == ord("m"):
-            mode = "calendar" if mode == "clock" else "clock"
-        elif mode == "calendar" and key in (ord("<"), ord(",")):
+        elif key in (ord("w"), ord("W")):  # Change mode to clock mode
+            mode = "clock"
+            timer_input_mode = False
+            curses.curs_set(0)
+        elif key in (ord("c"), ord("C")):  # Change mode to calendar
+            mode = "calendar"
+            timer_input_mode = False
+            curses.curs_set(0)
+        elif key in (ord("s"), ord("S")):  # Change mode to stopwatch
+            mode = "stopwatch"
+            timer_input_mode = False
+            curses.curs_set(0)
+        elif key in (ord("t"), ord("T")):  # Change mode to timer
+            mode = "timer"
+            timer_input_mode = True
+            total_time = 0
+            initial_time = 0
+            timer_running = False
+
+        # Modes functions
+        elif key in (ord("r"), ord("R")):
+            if mode == "stopwatch":  # Reset stopwatch
+                stopwatch_start = time.time()
+                stopwatch_accumulated = 0
+                stopwatch_running = True
+            elif mode == "timer" and not timer_input_mode:  # Reset timer
+                total_time = initial_time
+                timer_running = True
+        
+        elif key == ord(" "):  # Pause/Resume stopwatch or timer
+            if mode == "stopwatch":
+                if stopwatch_running:
+                    stopwatch_accumulated += time.time() - stopwatch_start
+                    stopwatch_running = False
+                else:
+                    stopwatch_start = time.time()
+                    stopwatch_running = True
+            elif mode == "timer" and not timer_input_mode:
+                timer_running = not timer_running
+
+        elif mode == "calendar" and key in (ord("<"), ord(",")):  # Previous month
             calendar_month -= 1
             if calendar_month < 1:
                 calendar_month = 12
                 calendar_year -= 1
-        elif mode == "calendar" and key in (ord(">"), ord(".")):
+
+        elif mode == "calendar" and key in (ord(">"), ord(".")):  # Next month
             calendar_month += 1
             if calendar_month > 12:
                 calendar_month = 1

@@ -13,6 +13,8 @@ def render_calendar(year=None, month=None):
         year = now.year
     if month is None:
         month = now.month
+    
+    calendar.setfirstweekday(calendar.SUNDAY) # Set first day of the week to Sunday
 
     # Adjust month and year if out of range
     if month < 1:
@@ -26,12 +28,12 @@ def render_calendar(year=None, month=None):
     month_name = calendar.month_name[month]
     header = f"{month_name} {year}"
     lines = [header.center(20)]
-    lines.append("Mo Tu We Th Fr Sa Su")
-    
+    lines.append("Su Mo Tu We Th Fr Sa") # Weekday header
+
     # Lists to stores lines and attributes
     formatted_lines = []
     attributes = []
-
+    
     current_day = now.day if year == now.year and month == now.month else None
 
     for week in cal:
@@ -42,7 +44,7 @@ def render_calendar(year=None, month=None):
                 week_str += "   "
                 week_attrs.extend([0, 0, 0])
             else:
-                week_str += f"{day:2d} "
+                week_str += f"{day:02} "
                 if day == current_day:
                     week_attrs.extend([2, 2, 1])  # Highlight only for 2 digits of current day
                 else:

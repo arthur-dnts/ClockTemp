@@ -1,11 +1,11 @@
 <div align="center">
  <h1>ClockTemp</h1>
- <b>ClockTemp</b> is a simple clock inspired by <a href="https://github.com/xorg62/tty-clock">tty-clock</a> that displays the time, date and temperature.
+ <b>ClockTemp</b> is a TUI clock inspired by <a href="https://github.com/xorg62/tty-clock">tty-clock</a> that displays the time, date, temperature and more.
  <img src="assets/Screenshot_1.png">
- <img src="assets/Screenshot_2.png">
+ <a href="#installation">Installation</a> • <a href="#remove-clocktemp">Uninstall</a> • <a href="#commands-and-interactive-keys-list">Commands and Keys</a> • <a href="#credits">Credits</a> • <a href="#resources-used">Resources Used</a>  
 </div>
 
-## How to use
+## Installation
 
 > [!IMPORTANT]
 Prerequisites: [Python](https://www.python.org/) version 3.x and [requests](https://pypi.org/project/requests/) library
@@ -83,19 +83,24 @@ Example command:
  clocktemp -tf 24 -df dd/mm -tu c -s true -lat 12.345 -lon -67.891 -c cyan -b default
  ```
 
-|  KEYS  | FUNCTION |
-|:------:|:--------:|
-| m      | Toggle between clock and calendar modes |
-| < / ,  | Previous month (only work on calendar mode) |
-| > / .  | Next month (only work on calendar mode) |
-| q      | Quit ClockTemp |
+|   KEYS   | FUNCTION |
+|:--------:|:--------:|
+| w        | Change to clock mode |
+| c        | Change to calendar mode |
+| s        | Change to stopwatch mode |
+| t        | Change to timer mode |
+| r        | Reset stopwatch or timer |
+| SPACEBAR | Pause/Resume stopwatch or timer |
+| < / ,    | Previous month |
+| > / .    | Next month |
+| q        | Quit ClockTemp |
 
 ## Future updates?
 
 - [x] Add an integrated calendar
+- [x] Add stopwatch and timer functions
 - [ ] Add reminders in the calendar tab
-- [ ] Add stopwatch and timer functions
-
+  
 ## Credits
 
 The digit display matrix of <code>clock.py</code> archive was adapted from [tty-clock](https://github.com/xorg62/tty-clock), licensed under the BSD-3 Clause:

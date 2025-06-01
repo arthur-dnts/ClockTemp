@@ -5,6 +5,7 @@
 """
 
 import time
+import sys
 
 """
 Copyright (c) 2009-2018 tty-clock contributors
@@ -62,11 +63,29 @@ def render_digit(digit_matrix):
             lines[row] += "  "
     return lines
 
-# Render time based on current time
-def render_time(timeFormat):
+# Render clock based on current time
+def render_clock(timeFormat):
     current_time = time.strftime(timeFormat)
     lines = [""] * 5
     for char in current_time:
+        if char == ":":
+            digit_matrix = NUMBERS[10]
+        else:
+            digit_matrix = NUMBERS[int(char)]
+        digit_lines = render_digit(digit_matrix)
+        for row in range(5):
+            lines[row] += digit_lines[row] + " "
+    return lines
+
+# Render stopwatch and timer
+def render_stop_timer(totalTime, isRunning):
+    hours = totalTime // 3600
+    minutes = (totalTime % 3600) // 60
+    seconds = totalTime % 60
+
+    time_str = f"{hours:02}:{minutes:02}:{seconds:02}"
+    lines = [""] * 5
+    for char in time_str:
         if char == ":":
             digit_matrix = NUMBERS[10]
         else:
