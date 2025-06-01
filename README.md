@@ -1,9 +1,9 @@
 <div align="center">
  <h1>ClockTemp</h1>
+ <p><b>ClockTemp</b> is a simple clock inspired by <a href="https://github.com/xorg62/tty-clock">tty-clock</a> that displays the time, date and temperature.</p><br>
  <img src="https://img.shields.io/github/stars/arthur-dnts/ClockTemp?&style=for-the-badge&color=F2F4F8&labelColor=161616">
  <img src="https://img.shields.io/github/license/arthur-dnts/ClockTemp?&style=for-the-badge&color=F2F4F8&labelColor=161616">
- <img src="https://img.shields.io/github/last-commit/arthur-dnts/ClockTemp?&style=for-the-badge&color=F2F4F8&labelColor=161616"><br>
- <b>ClockTemp</b> is a simple clock inspired by <a href="https://github.com/xorg62/tty-clock">tty-clock</a> that displays the time, date and temperature.
+ <img src="https://img.shields.io/github/last-commit/arthur-dnts/ClockTemp?&style=for-the-badge&color=F2F4F8&labelColor=161616">
  <img src="assets/Screenshot_1.png">
  <img src="assets/Screenshot_2.png">
 </div>
