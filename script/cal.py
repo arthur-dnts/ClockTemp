@@ -27,13 +27,19 @@ def render_calendar(year=None, month=None):
     cal = calendar.monthcalendar(year, month)
     month_name = calendar.month_name[month]
     header = f"{month_name} {year}"
+    
     lines = [header.center(20)]
+    lines.append("")
     lines.append("Su Mo Tu We Th Fr Sa") # Weekday header
 
     # Lists to stores lines and attributes
     formatted_lines = []
     attributes = []
-    
+
+    # Weekday header highlight
+    weekday_attrs = [2 for _ in lines[0]]
+    attributes.append(weekday_attrs)
+
     current_day = now.day if year == now.year and month == now.month else None
 
     for week in cal:

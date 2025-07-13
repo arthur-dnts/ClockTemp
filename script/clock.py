@@ -5,7 +5,6 @@
 """
 
 import time
-import sys
 
 """
 Copyright (c) 2009-2018 tty-clock contributors
@@ -78,7 +77,7 @@ def render_clock(timeFormat):
     return lines
 
 # Render stopwatch and timer
-def render_stop_timer(totalTime, isRunning):
+def render_stop_timer(totalTime):
     hours = totalTime // 3600
     minutes = (totalTime % 3600) // 60
     seconds = totalTime % 60

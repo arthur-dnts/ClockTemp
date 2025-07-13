@@ -63,6 +63,10 @@ cp "$SOURCE_DIR/clock.py" "$DEST_DIR/" || {
     echo "Error: Failed to copy clock.py"
     exit 1
 }
+cp "$SOURCE_DIR/modes.py" "$DEST_DIR/" || {
+    echo "Error: Failed to copy modes.py"
+    exit 1
+}
 
 # Make clocktemp.py executable
 echo "Making clocktemp.py executable..."

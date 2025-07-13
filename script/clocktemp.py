@@ -9,18 +9,15 @@
 # See <https://www.gnu.org/licenses/> for details.
 """
 
-from temperature import get_weather
-from cal import render_calendar
-from clock import render_clock, render_stop_timer
+from modes import draw_clock, draw_calendar, draw_stopwatch, draw_timer
 from datetime import datetime
-from curses.textpad import Textbox, rectangle
 import argparse
 import curses
 import time
 import sys
 
 # Add the path to the clocktemp module
-sys.path.append('/usr/local/share/clocktemp')
+sys.path.append("/usr/local/share/clocktemp")
 
 def parse_args():
     # Args to command line
@@ -108,31 +105,36 @@ def print_help():
         clocktemp -tf 24 -df dd/mm -tu c -s true -lat 12.345 -lon -67.891 -c black -b white
         clocktemp -h
     """
-
+    
     print(help_text)
     sys.exit(0)
 
+class initial_state:
+    def __init__(self, stdscr):
+        # Initialize variables for clock
+        self.last_temp = ""                               # Stores the last temperature
+        self.last_temp_update = 0                         # Temperature update time
+        self.last_height, self.last_width = stdscr.getmaxyx()  # Terminal size
+        self.mode = "clock"                               # Default mode
+
+        # Initialize variables for calendar
+        self.calendar_year = datetime.now().year          # Calendar current year
+        self.calendar_month = datetime.now().month        # Calendar current month
+
+        # Initialize variables for stopwatch
+        self.stopwatch_start = time.time()
+        self.stopwatch_accumulated = 0
+        self.stopwatch_running = False
+
+        # Initialize variables for timer
+        self.timer_running = False
+        self.total_time = 0
+        self.initial_time = 0
+        self.timer_input_mode = False  # Flag to control timer input screen
+
 def main(stdscr, args):
-    # Initialize variables for clock and calendar
-    last_time = ""
-    last_temp = ""
-    last_temp_update = 0                         # Temperature update time
-    current_temp = "N/A"                         # If temperature is not available
-    last_height, last_width = stdscr.getmaxyx()  # Get terminal size
-    mode = "clock"                               # Default mode
-    calendar_year = datetime.now().year          # Calendar current year
-    calendar_month = datetime.now().month        # Calendar current month
 
-    # Initialize variables for stopwatch
-    stopwatch_start = time.time()
-    stopwatch_accumulated = 0
-    stopwatch_running = False
-
-    # Initialize variables for timer
-    timer_running = False
-    total_time = 0
-    initial_time = 0
-    timer_input_mode = False  # Flag to control timer input screen
+    state = initial_state(stdscr)
 
     # Map text color
     color_map = {
@@ -148,7 +150,7 @@ def main(stdscr, args):
 
     # Map background color
     bg_color_map = {
-        "default": -1, # terminal default color
+        "default": -1, # terminal default color (transparent)
         "white": curses.COLOR_WHITE,
         "black": curses.COLOR_BLACK,
         "red": curses.COLOR_RED,
@@ -170,317 +172,90 @@ def main(stdscr, args):
     curses.init_pair(2, inverted_text_color, inverted_background_color)
 
     if args.b != "default":
-        stdscr.bkgd(' ', curses.color_pair(1))
+        stdscr.bkgd(" ", curses.color_pair(1))
 
     curses.curs_set(0) # Hide cursor
     stdscr.timeout(1000) # 1 second ticker
 
     while True:
         start_time = time.time()
-        stdscr.clear()
+        stdscr.erase()
 
         height, width = stdscr.getmaxyx() # Get terminal size
-        resized = height != last_height or width != last_width # Check if terminal size has changed
-        if resized:
-            stdscr.clear() # Clear terminal to avoid artifacts
-            last_height, last_width = height, width
+        resized = height != state.last_height or width != state.last_width # Check if terminal size has changed
+        if resized: # If resized clear terminal to avoid artifacts
+            stdscr.clear()
+            state.last_height, state.last_width = height, width
 
-        if mode == "clock":
-            # Update temperature every 10 minutes
-            if time.time() - last_temp_update >= 600:
-                lat = args.lat
-                lon = args.lon
-                try:
-                    current_temp = get_weather(lat, lon)
-                    if isinstance(current_temp, (int, float)):
-                        if args.tu == "f":
-                            temp_format = (current_temp * 9/5) + 32
-                            temp_format = "{:04.1f}".format(temp_format)
-                        else:
-                            temp_format = "{:04.1f}".format(float(current_temp))
-                    else:
-                        temp_format = "N/A"
-                    last_temp_update = time.time()
-                except:
-                    temp_format = "N/A"
-
-            # Change temperature format based on args.tu
-            if args.tu == "f" and temp_format != "N/A":
-                temp_unit = "ºF"
-            elif args.tu == "c" and temp_format != "N/A":
-                temp_unit = "ºC"
-            else:
-                temp_unit = ""
-
-            # Change date format based on args.df
-            date_format = "%m/%d/%Y" if args.df == "mm/dd" else "%d/%m/%Y"
-            current_date = datetime.today().strftime(date_format)
-
-            dateTemp = f"{current_date} | {temp_format}{temp_unit}" if isinstance(temp_format, (int, float)) else f"{current_date} | {temp_format}{temp_unit}"
-
-            # Change time format based on args.tf and args.s
-            if args.tf == "24" and args.s == "true":
-                time_format = "%H:%M:%S"
-            elif args.tf == "24" and args.s == "false":
-                time_format = "%H:%M"
-            elif args.tf == "12" and args.s == "true":
-                time_format = "%I:%M:%S"
-            else:
-                time_format = "%I:%M"
-
-            try:
-                # Centralize clock, date and temperature on terminal
-                current_time_lines = render_clock(time_format)
-                clock_height = len(current_time_lines)
-                clock_width = len(current_time_lines[0]) if current_time_lines else 0
-                clock_start_y = (height - clock_height) // 2
-                clock_start_x = (width - clock_width) // 2
-
-                dateTemp_width = len(dateTemp)
-                dateTemp_start_x = (width - dateTemp_width) // 2
-
-                current_time_str = "\n".join(current_time_lines)
-                if clock_start_y >= 0 and clock_start_x >= 0:
-                    for i, line in enumerate(current_time_lines):
-                        if clock_start_y + i < height and clock_start_x + clock_width <= width:
-                            stdscr.addstr(clock_start_y + i, clock_start_x, " " * clock_width, curses.color_pair(1))
-                            stdscr.addstr(clock_start_y + i, clock_start_x, line, curses.color_pair(1))
-                    if clock_start_y + 6 < height and dateTemp_start_x - 1 + dateTemp_width <= width:
-                        stdscr.addstr(clock_start_y + 6, dateTemp_start_x - 1, " " * dateTemp_width, curses.color_pair(1))
-                        stdscr.addstr(clock_start_y + 6, dateTemp_start_x - 1, dateTemp, curses.color_pair(1))
-                last_time = current_time_str
-                last_temp = dateTemp
-            except (curses.error, ValueError, IndexError):
-                pass
+        if state.mode == "clock":
+            state.last_temp, state.last_temp_update = draw_clock(stdscr, args, height, width, state)
         
-        elif mode == "calendar":
-            try:
-                # Centralize calendar on terminal
-                calendar_lines, calendar_attrs = render_calendar(calendar_year, calendar_month)
-                calendar_height = len(calendar_lines)
-                calendar_width = max(len(line) for line in calendar_lines)
-                calendar_start_y = (height - calendar_height) // 2
-                calendar_start_x = (width - calendar_width) // 2
+        elif state.mode == "calendar":
+            draw_calendar(stdscr, height, width, state)
+        
+        elif state.mode == "stopwatch":
+            state.stopwatch_accumulated, state.stopwatch_running = draw_stopwatch(stdscr, height, width, state)
 
-                # Centralize calendar message on terminal
-                calendar_msg = "< Prev | Next >"
-                calendar_msg_start_x = (width - len(calendar_msg)) // 2
-                calendar_msg_start_y = calendar_start_y + calendar_height + 1
-
-                for i, line in enumerate(calendar_lines):
-                    if i < 2:
-                        if calendar_start_y + i < height and calendar_start_x + len(line) <= width:
-                            stdscr.addstr(calendar_start_y + i, calendar_start_x, line, curses.color_pair(1))
-                    else:
-                        if calendar_start_y + i < height and calendar_start_x + len(line) <= width:
-                            x = calendar_start_x
-                            for j, char in enumerate(line):
-                                attr = curses.color_pair(calendar_attrs[i-2][j]) if j < len(calendar_attrs[i-2]) else curses.color_pair(1)
-                                if x < width:
-                                    stdscr.addch(calendar_start_y + i, x, char, attr)
-                                x += 1
-                if calendar_msg_start_y < height and calendar_msg_start_x + len(calendar_msg) <= width:
-                    stdscr.addstr(calendar_msg_start_y, calendar_msg_start_x, calendar_msg, curses.color_pair(1))
-            except curses.error:
-                pass
-
-        elif mode == "stopwatch":
-            try:
-                if stopwatch_running:
-                    total_time = int(time.time() - stopwatch_start + stopwatch_accumulated)
-                else:
-                    total_time = int(stopwatch_accumulated)
-
-                # Centralize stopwatch on terminal
-                current_lines = render_stop_timer(total_time, stopwatch_running)
-                stopwatch_height = len(current_lines)
-                stopwatch_width = len(current_lines[0]) if current_lines else 0
-                stopwatch_start_y = (height - stopwatch_height) // 2
-                stopwatch_start_x = (width - stopwatch_width) // 2
-
-                # Centralize stopwatch message on terminal
-                mode_msg = "Mode: Stopwatch"
-                pause_msg = "SPACEBAR : Pause/Resume"
-                reset_msg = "R : Reset"
-                mode_msg_start_x = (width - len(mode_msg)) // 2
-                mode_msg_start_y = (height - len(current_lines) - 4) // 2
-                pause_msg_start_x = (width - len(pause_msg)) // 2
-                reset_msg_start_x = (width - len(reset_msg)) // 2
-
-                for i, line in enumerate(current_lines):
-                    if stopwatch_start_y + i < height and stopwatch_start_x + stopwatch_width <= width:
-                        stdscr.addstr(stopwatch_start_y + i, stopwatch_start_x, " ", curses.color_pair(1))
-                        stdscr.addstr(stopwatch_start_y + i, stopwatch_start_x, line, curses.color_pair(1))
-                if stopwatch_start_y + stopwatch_height + 1 < height and pause_msg_start_x + len(pause_msg) <= width:
-                    stdscr.addstr(mode_msg_start_y, mode_msg_start_x, mode_msg, curses.color_pair(1))
-                    stdscr.addstr(stopwatch_start_y + 6, pause_msg_start_x, " " * len(pause_msg), curses.color_pair(1))
-                    stdscr.addstr(stopwatch_start_y + 6, pause_msg_start_x, pause_msg, curses.color_pair(1))
-                    stdscr.addstr(stopwatch_start_y + 7, reset_msg_start_x, reset_msg, curses.color_pair(1))
-            except:
-                pass
-
-        elif mode == "timer":
-            try:
-                if timer_input_mode:
-                    # Exit from text input screen
-                    def exit(ch):
-                        if ch == 27:  # ESC key
-                            raise KeyboardInterrupt
-                        return ch
-
-                    # Create a textbox for timer input
-                    rect_height = 1
-                    rect_width = 4
-                    rect_start_y = (height - rect_height) // 2
-                    rect_start_x = (width - rect_width - 2) // 2
-                    rect_end_y = rect_start_y + rect_height + 1
-                    rect_end_x = rect_start_x + rect_width + 1
-
-                    rectangle(stdscr, rect_start_y, rect_start_x, rect_end_y, rect_end_x)
-
-                    # Help message
-                    
-                    help_msg = "Enter time in minutes"
-                    exit_msg = "ESC : Exit"
-                    help_msg_start_y = rect_start_y + 3
-                    help_msg_start_x = (width - len(help_msg)) // 2
-                    exit_msg_start_x = (width - len(exit_msg)) // 2
-
-                    stdscr.addstr(help_msg_start_y, help_msg_start_x, help_msg, curses.color_pair(1))
-                    stdscr.addstr(help_msg_start_y + 1, exit_msg_start_x, exit_msg, curses.color_pair(1))
-
-                    win = curses.newwin(rect_height, rect_width, rect_start_y + 1, rect_start_x + 1)
-                    box = Textbox(win)
-                    curses.curs_set(1)  # Show cursor
-                    stdscr.refresh()
-                    win.refresh()
-                    box.edit(exit)  # Wait for user input
-
-                    # Convert input from minutes to seconds
-                    try:
-                        minutes = float(box.gather().strip())
-                        if minutes <= 0:
-                            mode = "clock"
-                            timer_input_mode = False
-                            curses.curs_set(0)
-                            continue
-                        total_time = int(minutes * 60)
-                        initial_time = total_time
-                        timer_running = True
-                        timer_input_mode = False
-                        curses.curs_set(0)
-                    except ValueError:
-                        mode = "clock"
-                        timer_input_mode = False
-                        curses.curs_set(0)
-                        continue
-                else:
-                    # Render timer
-                    if timer_running and total_time > 0:
-                        total_time -= 1  # Decrement time
-                    elif total_time <= 0 and timer_running:
-                        # Timer finished
-                        timer_running = False
-                        stdscr.clear()
-                        end_msg = "Timer Finished!"
-                        wait_msg = "Returning to clock mode in 5 seconds..."
-                        end_msg_start_x = (width - len(end_msg)) // 2
-                        stdscr.addstr(height // 2, (width - len(end_msg)) // 2, end_msg, curses.color_pair(1))
-                        stdscr.addstr(height // 2 + 1, (width - len(wait_msg)) // 2, wait_msg, curses.color_pair(1))
-                        stdscr.refresh()
-                        curses.beep()
-                        time.sleep(5)
-                        mode = "clock"
-                        continue
-
-                    current_lines = render_stop_timer(total_time, timer_running)
-                    timer_height = len(current_lines)
-                    timer_width = len(current_lines[0]) if current_lines else 0
-                    timer_start_y = (height - timer_height) // 2
-                    timer_start_x = (width - timer_width) // 2
-
-                    # Centralize timer messages
-                    mode_msg = "Mode: Timer"
-                    pause_msg = "SPACEBAR : Pause/Resume"
-                    reset_msg = "R : Reset"
-                    mode_msg_start_x = (width - len(mode_msg)) // 2
-                    mode_msg_start_y = (height - len(current_lines) - 4) // 2
-                    pause_msg_start_x = (width - len(pause_msg)) // 2
-                    reset_msg_start_x = (width - len(reset_msg)) // 2
-
-                    for i, line in enumerate(current_lines):
-                        if timer_start_y + i < height and timer_start_x + timer_width <= width:
-                            stdscr.addstr(timer_start_y + i, timer_start_x, " ", curses.color_pair(1))
-                            stdscr.addstr(timer_start_y + i, timer_start_x, line, curses.color_pair(1))
-                    if timer_start_y + timer_height + 1 < height and pause_msg_start_x + len(pause_msg) <= width:
-                        stdscr.addstr(timer_start_y + timer_height + 1, pause_msg_start_x, " " * len(pause_msg), curses.color_pair(1))
-                        stdscr.addstr(mode_msg_start_y, mode_msg_start_x, mode_msg, curses.color_pair(1))
-                        stdscr.addstr(timer_start_y + timer_height + 1, pause_msg_start_x, pause_msg, curses.color_pair(1))
-                        stdscr.addstr(timer_start_y + timer_height + 2, reset_msg_start_x, reset_msg, curses.color_pair(1))
-                    
-            except (KeyboardInterrupt, curses.error):
-                curses.curs_set(0)
-                mode = "clock"
-                timer_input_mode = False
-
+        elif state.mode == "timer":
+            state.total_time, state.initial_time, state.timer_running, state.timer_input_mode = draw_timer(stdscr, height, width, state)
+            # if timer is over return to clock mode
+            if not state.timer_running and state.total_time == 0 and not state.timer_input_mode:
+                state.mode = "clock"
+    
         stdscr.refresh()
-
         key = stdscr.getch()
 
         # Handle key events
         if key in (ord("q"), ord("Q")):    # Quit the program
             break
         elif key in (ord("w"), ord("W")):  # Change mode to clock mode
-            mode = "clock"
-            timer_input_mode = False
+            state.mode = "clock"
+            state.timer_input_mode = False
             curses.curs_set(0)
         elif key in (ord("c"), ord("C")):  # Change mode to calendar
-            mode = "calendar"
-            timer_input_mode = False
+            state.mode = "calendar"
+            state.timer_input_mode = False
             curses.curs_set(0)
         elif key in (ord("s"), ord("S")):  # Change mode to stopwatch
-            mode = "stopwatch"
-            timer_input_mode = False
+            state.mode = "stopwatch"
+            state.timer_input_mode = False
             curses.curs_set(0)
         elif key in (ord("t"), ord("T")):  # Change mode to timer
-            mode = "timer"
-            timer_input_mode = True
-            total_time = 0
-            initial_time = 0
-            timer_running = False
+            state.mode = "timer"
+            state.timer_input_mode = True
 
         # Modes functions
         elif key in (ord("r"), ord("R")):
-            if mode == "stopwatch":  # Reset stopwatch
-                stopwatch_start = time.time()
-                stopwatch_accumulated = 0
-                stopwatch_running = True
-            elif mode == "timer" and not timer_input_mode:  # Reset timer
-                total_time = initial_time
-                timer_running = True
-        
-        elif key == ord(" "):  # Pause/Resume stopwatch or timer
-            if mode == "stopwatch":
-                if stopwatch_running:
-                    stopwatch_accumulated += time.time() - stopwatch_start
-                    stopwatch_running = False
+            if state.mode == "stopwatch": # Reset stopwatch
+                state.stopwatch_start = time.time()
+                state.stopwatch_accumulated = 0
+                state.stopwatch_running = True
+            elif state.mode == "timer" and not state.timer_input_mode: # Reset timer
+                state.total_time = state.initial_time
+                state.timer_running = True
+
+        elif key == ord(" "): # Pause/Resume stopwatch or timer
+            if state.mode == "stopwatch":
+                if state.stopwatch_running:
+                    state.stopwatch_accumulated += time.time() - state.stopwatch_start
+                    state.stopwatch_running = False
                 else:
-                    stopwatch_start = time.time()
-                    stopwatch_running = True
-            elif mode == "timer" and not timer_input_mode:
-                timer_running = not timer_running
+                    state.stopwatch_start = time.time()
+                    state.stopwatch_running = True
+            elif state.mode == "timer" and not state.timer_input_mode:
+                state.timer_running = not state.timer_running
 
-        elif mode == "calendar" and key in (ord("<"), ord(",")):  # Previous month
-            calendar_month -= 1
-            if calendar_month < 1:
-                calendar_month = 12
-                calendar_year -= 1
+        elif state.mode == "calendar" and key in (ord("<"), ord(",")): # Previous month
+            state.calendar_month -= 1
+            if state.calendar_month < 1:
+                state.calendar_month = 12
+                state.calendar_year -= 1
 
-        elif mode == "calendar" and key in (ord(">"), ord(".")):  # Next month
-            calendar_month += 1
-            if calendar_month > 12:
-                calendar_month = 1
-                calendar_year += 1
+        elif state.mode == "calendar" and key in (ord(">"), ord(".")): # Next month
+            state.calendar_month += 1
+            if state.calendar_month > 12:
+                state.calendar_month = 1
+                state.calendar_year += 1
 
         elapsed_time = time.time() - start_time
         sleep_time = max(0, 1.0 - elapsed_time)
