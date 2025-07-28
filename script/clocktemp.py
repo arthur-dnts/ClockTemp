@@ -34,7 +34,7 @@ def parse_args():
 
     args = parser.parse_args()
 
-    # Convert to lowercase and validate
+    # Valid arguments
     valid_tf = {"12", "24"}
     valid_df = {"dd/mm", "mm/dd"}
     valid_tu = {"c", "f"}
@@ -91,8 +91,8 @@ def print_help():
         c                   Switch to calendar mode
         s                   Switch to stopwatch mode
         t                   Switch to timer mode
-        SPACEBAR            Pause/Resume (in stopwatch or timer mode)
         r                   Reset (in stopwatch or timer mode)
+        SPACEBAR            Pause/Resume (in stopwatch or timer mode)
         < or ,              Show previous month (calendar mode only)
         > or .              Show next month (calendar mode only)
         q                   Quit the program
