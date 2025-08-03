@@ -70,7 +70,7 @@ def draw_calendar(stdscr, height, width, state):
 
     # Centralize hint on terminal
     calendar_hint = "< Prev | Next >"
-    calendar_hint_start_x = (width - len(calendar_hint)) // 2
+    calendar_hint_start_x = (width - len(calendar_hint) + 1) // 2
     calendar_hint_start_y = calendar_start_y + calendar_height + 1
 
     for i, line in enumerate(calendar_lines):
