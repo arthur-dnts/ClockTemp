@@ -98,12 +98,6 @@ Example command:
 | < / ,    | Previous month |
 | > / .    | Next month |
 | q        | Quit ClockTemp |
-
-## Future updates?
-
-- [x] Add an integrated calendar
-- [x] Add stopwatch and timer functions
-- [ ] Add reminders in the calendar tab
   
 ## Credits
 
@@ -145,3 +139,13 @@ This project was made using <code>Python</code> version 3.10.12, the <code>Reque
 ## License
 
 The <code>ClockTemp</code> project as a whole is licensed under the GNU General Public License v3 (GPLv3). See the LICENSE file for details.
+
+## Star History
+
+<a href="https://www.star-history.com/#arthur-dnts/ClockTemp&Timeline">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=arthur-dnts/ClockTemp&type=Timeline&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=arthur-dnts/ClockTemp&type=Timeline" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=arthur-dnts/ClockTemp&type=Timeline" />
+ </picture>
+</a>
