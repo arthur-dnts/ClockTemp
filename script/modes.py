@@ -174,12 +174,13 @@ def draw_timer(stdscr, height, width, state):
                 state.timer_running = False
                 stdscr.clear()
                 end_msg = "Timer finished!"
-                wait_msg = "Returning to clock mode in 5 seconds..."
+                wait_msg = "Returning to clock mode in {} seconds..."
                 center_text(stdscr, [end_msg], height, width, curses.color_pair(1), height // 2)
-                center_text(stdscr, [wait_msg], height, width, curses.color_pair(1), height // 2 + 1)
-                stdscr.refresh()
-                curses.beep()
-                time.sleep(5)
+                for i in range(5):
+                    center_text(stdscr, [wait_msg.format(5-i)], height, width, curses.color_pair(1), height // 2 + 1)
+                    stdscr.refresh()
+                    curses.beep()
+                    time.sleep(1)
             
             current_timer_lines = render_stop_timer(state.total_time)
 
