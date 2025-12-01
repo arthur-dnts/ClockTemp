@@ -253,13 +253,13 @@ def main(stdscr, args):
             elif state.mode == "timer" and not state.timer_input_mode:
                 state.timer_running = not state.timer_running
 
-        elif state.mode == "calendar" and key in (Keys.GREATER, Keys.COMMA): # Previous month
+        elif state.mode == "calendar" and key in (Keys.LESS, Keys.COMMA): # Previous month
             state.calendar_month -= 1
             if state.calendar_month < 1:
                 state.calendar_month = 12
                 state.calendar_year -= 1
 
-        elif state.mode == "calendar" and key in (Keys.LESS, Keys.DOT): # Next month
+        elif state.mode == "calendar" and key in (Keys.GREATER, Keys.DOT): # Next month
             state.calendar_month += 1
             if state.calendar_month > 12:
                 state.calendar_month = 1
