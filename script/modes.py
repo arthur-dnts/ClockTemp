@@ -10,6 +10,7 @@ from cal import render_calendar
 from datetime import datetime
 from curses.textpad import Textbox, rectangle
 from math import ceil
+from tools import Keys
 import curses
 import time
 
@@ -120,7 +121,7 @@ def draw_timer(stdscr, height, width, state):
         if state.timer_input_mode:
             # Exit from text input screen
             def exit_input(ch):
-                if ch == 27: # Esc key
+                if ch == Keys.ESC:
                     raise KeyboardInterrupt
                 return ch
 
