@@ -28,6 +28,7 @@ def parse_args():
     parser.add_argument("-df", default="mm/dd", help="Date format: dd/mm for day/month/year, mm/dd (default) for month/day/year")
     parser.add_argument("-tu", default="c", help="Temperature unit: c (default) for Celsius, f for Fahrenheit")
     parser.add_argument("-s", default="true", help="Show/Hide seconds (default=True)")
+    parser.add_argument("-a", default="true", help="Stop timer/stopwatch after reset (default=True)")
     parser.add_argument("-lat", default="0", help="Latitude of your current location")
     parser.add_argument("-lon", default="0", help="Longitude of your current location")
     parser.add_argument("-c", default="white", help="Text color: white (default), black, red, yellow, green, cyan, blue, magenta")
@@ -40,6 +41,7 @@ def parse_args():
     valid_df = {"dd/mm", "mm/dd"}
     valid_tu = {"c", "f"}
     valid_s = {"true", "false"}
+    valid_a = {"true", "false"}
     valid_colors = {"white", "black", "red", "yellow", "green", "cyan", "blue", "magenta"}
     valid_bg_colors = {"default", "white", "black", "red", "yellow", "green", "cyan", "blue", "magenta"}
 
@@ -59,6 +61,10 @@ def parse_args():
     args.s = args.s.lower()
     if args.s not in valid_s:
         parser.error(f"Invalid seconds option: {args.s}. Choose from {list(valid_s)}")
+    
+    args.a = args.a.lower()
+    if args.a not in valid_a:
+        parser.error(f"Invalid seconds option: {args.a}. Choose from {list(valid_a)}")
 
     args.c = args.c.lower()
     if args.c not in valid_colors:
@@ -82,6 +88,7 @@ def print_help():
         -df {mm/dd,dd/mm}   Date format: mm/dd (default) for month/day/year, dd/mm for day/month/year
         -tu {c,f}           Temperature unit: c (default) for Celsius, f for Fahrenheit
         -s {true,false}     Show/Hide seconds: true (default) to show, false to hide
+        -a {true,false}     Stop timer/stopwatch after reset (default: true)
         -lat LATITUDE       Latitude of your current location (default: 0)
         -lon LONGITUDE      Longitude of your current location (default: 0)
         -c COLOR            Text color: white (default), black, red, yellow, green, cyan, blue, magenta
@@ -230,10 +237,10 @@ def main(stdscr, args):
             if state.mode == "stopwatch": # Reset stopwatch
                 state.stopwatch_start = time.time()
                 state.stopwatch_accumulated = 0
-                state.stopwatch_running = True
+                state.stopwatch_running = args.a == "false"
             elif state.mode == "timer" and not state.timer_input_mode: # Reset timer
                 state.total_time = state.initial_time
-                state.timer_running = True
+                state.timer_running = args.a == "false"
 
         elif key == ord(" "): # Pause/Resume stopwatch or timer
             if state.mode == "stopwatch":
