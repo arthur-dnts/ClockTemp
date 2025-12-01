@@ -242,7 +242,7 @@ def main(stdscr, args):
                 state.total_time = state.initial_time
                 state.timer_running = args.a == "false"
 
-        elif key == ord(" "): # Pause/Resume stopwatch or timer
+        elif key == Keys.SPACE: # Pause/Resume stopwatch or timer
             if state.mode == "stopwatch":
                 if state.stopwatch_running:
                     state.stopwatch_accumulated += time.time() - state.stopwatch_start
@@ -253,13 +253,13 @@ def main(stdscr, args):
             elif state.mode == "timer" and not state.timer_input_mode:
                 state.timer_running = not state.timer_running
 
-        elif state.mode == "calendar" and key in (ord("<"), ord(",")): # Previous month
+        elif state.mode == "calendar" and key in (Keys.GREATER, Keys.COMMA): # Previous month
             state.calendar_month -= 1
             if state.calendar_month < 1:
                 state.calendar_month = 12
                 state.calendar_year -= 1
 
-        elif state.mode == "calendar" and key in (ord(">"), ord(".")): # Next month
+        elif state.mode == "calendar" and key in (Keys.LESS, Keys.DOT): # Next month
             state.calendar_month += 1
             if state.calendar_month > 12:
                 state.calendar_month = 1

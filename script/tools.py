@@ -2,6 +2,12 @@
 class Keys:
     # Spec
     ESC = 27
+    SPACE = 32
+    TAB = 9
+    DOT = 46
+    COMMA = 44
+    LESS = 60
+    GREATER = 62
     
     # Letters
     A=65
