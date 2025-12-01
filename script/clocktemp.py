@@ -11,6 +11,7 @@
 
 from modes import draw_clock, draw_calendar, draw_stopwatch, draw_timer
 from datetime import datetime
+from tools import Keys
 import argparse
 import curses
 import time
@@ -95,7 +96,7 @@ def print_help():
         SPACEBAR            Pause/Resume (in stopwatch or timer mode)
         < or ,              Show previous month (calendar mode only)
         > or .              Show next month (calendar mode only)
-        q                   Quit the program
+        q or esc            Quit the program
 
         Note:
         - Options are case-insensitive (e.g., -c RED or -c red both work).
@@ -206,26 +207,26 @@ def main(stdscr, args):
         key = stdscr.getch()
 
         # Handle key events
-        if key in (ord("q"), ord("Q")):    # Quit the program
+        if key in (Keys.q, Keys.Q, Keys.ESC):    # Quit the program
             break
-        elif key in (ord("w"), ord("W")):  # Change mode to clock mode
+        elif key in (Keys.w, Keys.W):  # Change mode to clock mode
             state.mode = "clock"
             state.timer_input_mode = False
             curses.curs_set(0)
-        elif key in (ord("c"), ord("C")):  # Change mode to calendar
+        elif key in (Keys.c, Keys.C):  # Change mode to calendar
             state.mode = "calendar"
             state.timer_input_mode = False
             curses.curs_set(0)
-        elif key in (ord("s"), ord("S")):  # Change mode to stopwatch
+        elif key in (Keys.s, Keys.S):  # Change mode to stopwatch
             state.mode = "stopwatch"
             state.timer_input_mode = False
             curses.curs_set(0)
-        elif key in (ord("t"), ord("T")):  # Change mode to timer
+        elif key in (Keys.t, Keys.T):  # Change mode to timer
             state.mode = "timer"
             state.timer_input_mode = True
 
         # Modes functions
-        elif key in (ord("r"), ord("R")):
+        elif key in (Keys.r, Keys.R):
             if state.mode == "stopwatch": # Reset stopwatch
                 state.stopwatch_start = time.time()
                 state.stopwatch_accumulated = 0
