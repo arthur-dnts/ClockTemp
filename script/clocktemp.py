@@ -183,34 +183,11 @@ def main(stdscr, args):
         stdscr.bkgd(" ", curses.color_pair(1))
 
     curses.curs_set(0) # Hide cursor
-    stdscr.timeout(1000) # 1 second ticker
+    stdscr.timeout(100) # 1 second ticker
 
     while True:
         start_time = time.time()
-        stdscr.erase()
 
-        height, width = stdscr.getmaxyx() # Get terminal size
-        resized = height != state.last_height or width != state.last_width # Check if terminal size has changed
-        if resized: # If resized clear terminal to avoid artifacts
-            stdscr.clear()
-            state.last_height, state.last_width = height, width
-
-        if state.mode == "clock":
-            state.last_temp, state.last_temp_update = draw_clock(stdscr, args, height, width, state)
-        
-        elif state.mode == "calendar":
-            draw_calendar(stdscr, height, width, state)
-        
-        elif state.mode == "stopwatch":
-            state.stopwatch_accumulated, state.stopwatch_running = draw_stopwatch(stdscr, height, width, state)
-
-        elif state.mode == "timer":
-            state.total_time, state.initial_time, state.timer_running, state.timer_input_mode = draw_timer(stdscr, height, width, state)
-            # if timer is over return to clock mode
-            if not state.timer_running and state.total_time == 0 and not state.timer_input_mode:
-                state.mode = "clock"
-    
-        stdscr.refresh()
         key = stdscr.getch()
 
         # Handle key events
@@ -264,6 +241,31 @@ def main(stdscr, args):
             if state.calendar_month > 12:
                 state.calendar_month = 1
                 state.calendar_year += 1
+
+        stdscr.erase()
+
+        height, width = stdscr.getmaxyx() # Get terminal size
+        resized = height != state.last_height or width != state.last_width # Check if terminal size has changed
+        if resized: # If resized clear terminal to avoid artifacts
+            stdscr.clear()
+            state.last_height, state.last_width = height, width
+
+        if state.mode == "clock":
+            state.last_temp, state.last_temp_update = draw_clock(stdscr, args, height, width, state)
+        
+        elif state.mode == "calendar":
+            draw_calendar(stdscr, height, width, state)
+        
+        elif state.mode == "stopwatch":
+            state.stopwatch_accumulated, state.stopwatch_running = draw_stopwatch(stdscr, height, width, state)
+
+        elif state.mode == "timer":
+            state.total_time, state.initial_time, state.timer_running, state.timer_input_mode = draw_timer(stdscr, height, width, state)
+            # if timer is over return to clock mode
+            if not state.timer_running and state.total_time == 0 and not state.timer_input_mode:
+                state.mode = "clock"
+    
+        stdscr.refresh()
 
         elapsed_time = time.time() - start_time
         sleep_time = max(0, 1.0 - elapsed_time)

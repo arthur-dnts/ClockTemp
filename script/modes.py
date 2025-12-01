@@ -9,6 +9,7 @@ from temperature import get_weather
 from cal import render_calendar
 from datetime import datetime
 from curses.textpad import Textbox, rectangle
+from math import ceil
 import curses
 import time
 
@@ -176,11 +177,12 @@ def draw_timer(stdscr, height, width, state):
                 end_msg = "Timer finished!"
                 wait_msg = "Returning to clock mode in {} seconds..."
                 center_text(stdscr, [end_msg], height, width, curses.color_pair(1), height // 2)
-                for i in range(5):
-                    center_text(stdscr, [wait_msg.format(5-i)], height, width, curses.color_pair(1), height // 2 + 1)
+                for i in range(50):
+                    if stdscr.getch() != -1:
+                        break
+                    center_text(stdscr, [wait_msg.format(ceil((50-i)/10))], height, width, curses.color_pair(1), height // 2 + 1)
                     stdscr.refresh()
                     curses.beep()
-                    time.sleep(1)
             
             current_timer_lines = render_stop_timer(state.total_time)
 
