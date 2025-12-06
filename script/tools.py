@@ -1,4 +1,3 @@
-
 class Keys:
     # Spec
     ESC = 27

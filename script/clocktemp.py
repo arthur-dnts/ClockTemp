@@ -35,83 +35,67 @@ def parse_args():
     parser.add_argument("-b", default="default", help="Background color: default (terminal default), white, black, red, yellow, green, cyan, blue, magenta")
 
     args = parser.parse_args()
+    return validate_args(args, parser)
 
+def validate_args(args, parser):
     # Valid arguments
-    valid_tf = {"12", "24"}
-    valid_df = {"dd/mm", "mm/dd"}
-    valid_tu = {"c", "f"}
-    valid_s = {"true", "false"}
-    valid_a = {"true", "false"}
-    valid_colors = {"white", "black", "red", "yellow", "green", "cyan", "blue", "magenta"}
-    valid_bg_colors = {"default", "white", "black", "red", "yellow", "green", "cyan", "blue", "magenta"}
+    valid_options = {
+        "tf": {"12", "24"},
+        "df": {"dd/mm", "mm/dd"},
+        "tu": {"c", "f"},
+        "s": {"true", "false"},
+        "a": {"true", "false"},
+        "c": {"white", "black", "red", "yellow", "green", "cyan", "blue", "magenta"},
+        "b": {"default", "white", "black", "red", "yellow", "green", "cyan", "blue", "magenta"}
+    }
 
     # Convert arguments to lowercase to ensure case-insensitivity
-    args.tf = args.tf.lower()
-    if args.tf not in valid_tf:
-        parser.error(f"Invalid time format: {args.tf}. Choose from {list(valid_tf)}")
+    for key in valid_options:
+        setattr(args, key, getattr(args, key).lower())
 
-    args.df = args.df.lower()
-    if args.df not in valid_df:
-        parser.error(f"Invalid date format: {args.df}. Choose from {list(valid_df)}")
-
-    args.tu = args.tu.lower()
-    if args.tu not in valid_tu:
-        parser.error(f"Invalid temperature unit: {args.tu}. Choose from {list(valid_tu)}")
-
-    args.s = args.s.lower()
-    if args.s not in valid_s:
-        parser.error(f"Invalid seconds option: {args.s}. Choose from {list(valid_s)}")
-    
-    args.a = args.a.lower()
-    if args.a not in valid_a:
-        parser.error(f"Invalid seconds option: {args.a}. Choose from {list(valid_a)}")
-
-    args.c = args.c.lower()
-    if args.c not in valid_colors:
-        parser.error(f"Invalid color: {args.c}. Choose from {list(valid_colors)}")
-
-    args.b = args.b.lower()
-    if args.b not in valid_bg_colors:
-        parser.error(f"Invalid color: {args.b}. Choose from {list(valid_bg_colors)}")
+    for key, valid_values in valid_options.items():
+        value = getattr(args, key)
+        if value not in valid_values:
+            parser.error(f"Invalid {key} option: {value}. Choose from {list(valid_values)}")
 
     return args
 
 def print_help():
     help_text = """
         ClockTemp - A simple and customizable TUI clock based on tty-clock
+        Version: 1.1.3
 
         Usage: clocktemp [OPTIONS]
 
         Options:
-        -h, --help          Show this help message and exit
-        -tf {12,24}         Time format: 12 (default) for 12-hour clock, 24 for 24-hour clock
-        -df {mm/dd,dd/mm}   Date format: mm/dd (default) for month/day/year, dd/mm for day/month/year
-        -tu {c,f}           Temperature unit: c (default) for Celsius, f for Fahrenheit
-        -s {true,false}     Show/Hide seconds: true (default) to show, false to hide
-        -a {true,false}     Stop timer/stopwatch after reset (default: true)
-        -lat LATITUDE       Latitude of your current location (default: 0)
-        -lon LONGITUDE      Longitude of your current location (default: 0)
-        -c COLOR            Text color: white (default), black, red, yellow, green, cyan, blue, magenta
-        -b COLOR            Background color: default (terminal default), white, black, red, yellow, green, cyan, blue, magenta
+        -h, --help           Show this help message and exit
+        -tf [12, 24]         Time format: 12 (default) for 12-hour clock, 24 for 24-hour clock
+        -df [mm/dd, dd/mm]   Date format: mm/dd (default) for month/day/year, dd/mm for day/month/year
+        -tu [c,f]            Temperature unit: c (default) for Celsius, f for Fahrenheit
+        -s [true, false]     Show/Hide seconds: true (default) to show, false to hide
+        -a [true, false]     Stop timer/stopwatch after reset (default: true)
+        -lat LATITUDE        Latitude of your current location (default: 0)
+        -lon LONGITUDE       Longitude of your current location (default: 0)
+        -c COLOR             Text color: white (default), black, red, yellow, green, cyan, blue, magenta
+        -b COLOR             Background color: default (terminal default), white, black, red, yellow, green, cyan, blue, magenta
 
         keys:
-        w                   Switch to clock mode
-        c                   Switch to calendar mode
-        s                   Switch to stopwatch mode
-        t                   Switch to timer mode
-        r                   Reset (in stopwatch or timer mode)
-        SPACEBAR            Pause/Resume (in stopwatch or timer mode)
-        < or ,              Show previous month (calendar mode only)
-        > or .              Show next month (calendar mode only)
-        q or esc            Quit the program
+        w                    Switch to clock mode
+        c                    Switch to calendar mode
+        s                    Switch to stopwatch mode
+        t                    Switch to timer mode
+        r                    Reset (in stopwatch or timer mode)
+        SPACEBAR             Pause/Resume (in stopwatch or timer mode)
+        < or ,               Show previous month (calendar mode only)
+        > or .               Show next month (calendar mode only)
+        q or ESC             Quit the program
 
         Note:
         - Options are case-insensitive (e.g., -c RED or -c red both work).
         - In calendar mode, the current day is highlighted with inverted colors (background from -c, text from -b).
 
-        Examples:
+        Command example:
         clocktemp -tf 24 -df dd/mm -tu c -s true -lat 12.345 -lon -67.891 -c black -b white
-        clocktemp -h
     """
     
     print(help_text)

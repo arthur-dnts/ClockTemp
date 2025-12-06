@@ -77,6 +77,7 @@ If you want to remove ClockTemp from your environment variables, follow these st
 | -df     | mm/dd / dd/mm |   mm/dd    | Change date format between MM/DD/YYYY and DD/MM/YYYY |
 | -tu     | c / f |   c    | Change temperature unit between Celsius and Fahrenheit |
 | -s      | true / false |   true    | Show or hide seconds |
+| -a      | true / false |   true    | Stop timer/stopwatch after reset |
 | -lat    | Any latitude |   0    | Use the user's latitude to get weather data from Open-Meteo API |
 | -lon    | Any longitude |   0    | Use the user's longitude to get weather data from Open-Meteo API |
 | -c      | white / black / red / yellow / green / cyan / blue / magenta |   white    | Change text color |
@@ -97,7 +98,7 @@ Example command:
 | SPACEBAR | Pause/Resume stopwatch or timer |
 | < / ,    | Previous month |
 | > / .    | Next month |
-| q        | Quit ClockTemp |
+| q or ESC | Quit ClockTemp |
   
 ## Credits
 
