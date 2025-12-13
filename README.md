@@ -6,7 +6,7 @@
  <a href="https://github.com/arthur-dnts/ClockTemp/releases"><img src="https://img.shields.io/github/v/release/arthur-dnts/ClockTemp?style=for-the-badge&color=F2F4F8&labelColor=161616&label=Version"></a>
  <img src="https://img.shields.io/github/last-commit/arthur-dnts/ClockTemp?&style=for-the-badge&color=F2F4F8&labelColor=161616">
  <img src="assets/Screenshot_1.png">
- <a href="#installation">Installation</a> • <a href="#remove-clocktemp">Uninstall</a> • <a href="#commands-and-interactive-keys-list">Commands and Keys</a> • <a href="#credits">Credits</a> • <a href="#resources-used">Resources Used</a>  
+ <a href="#installation">Installation</a> • <a href="#remove-clocktemp">Uninstall</a> • <a href="#commands-and-interactive-keys-list">Commands and Keys</a> • <a href="#credits">Credits</a> • <a href="#resources-used">Resources Used</a> • <a href="#contributors"> Contributors </a>  
 </div>
 
 ## Installation
@@ -141,6 +141,11 @@ This project was made using <code>Python</code> version 3.10.12, the <code>Reque
 
 The <code>ClockTemp</code> project as a whole is licensed under the GNU General Public License v3 (GPLv3). See the LICENSE file for details.
 
+## Contributors
+
+| [<div><img width=100 src="https://avatars.githubusercontent.com/u/73240555?v=4"><br><span>Arthur D.</span></div>][Arthur D.] | [<div><img width=100 src="https://avatars.githubusercontent.com/u/193435795?v=4"><br><span>binsld</span></div>][Sergeev Lev] |
+|:-------:|:-------:|
+
 ## Star History
 
 <a href="https://www.star-history.com/#arthur-dnts/ClockTemp&Timeline">
@@ -150,3 +155,7 @@ The <code>ClockTemp</code> project as a whole is licensed under the GNU General 
    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=arthur-dnts/ClockTemp&type=Timeline" />
  </picture>
 </a>
+
+<!--Contributors-->
+[Arthur D.]: https://github.com/arthur-dnts
+[Sergeev Lev]: https://github.com/binsld
