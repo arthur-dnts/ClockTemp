@@ -9,7 +9,7 @@
 # See <https://www.gnu.org/licenses/> for details.
 """
 
-from modes import draw_clock, draw_calendar, draw_stopwatch, draw_timer
+from modes import draw_clock, draw_calendar, draw_stopwatch, draw_timer, help_menu
 from datetime import datetime
 from tools import Keys
 import argparse
@@ -24,9 +24,11 @@ def parse_args():
     # Args to command line
     parser = argparse.ArgumentParser(description="ClockTemp is a simple and customizable TUI clock based on tty-clock", add_help=False)
     parser.add_argument("-h", "--help", action="store_true", help="Show this help message and exit")
+    parser.add_argument("-v", "--version", action="store_true", help="Show program's version and exit")
     parser.add_argument("-tf", default="12", help="Time format: 12 (default) for 12-hour clock, 24 for 24-hour clock")
     parser.add_argument("-df", default="mm/dd", help="Date format: dd/mm for day/month/year, mm/dd (default) for month/day/year")
     parser.add_argument("-tu", default="c", help="Temperature unit: c (default) for Celsius, f for Fahrenheit")
+    parser.add_argument("-bd", default="false", help="Use bold characters (default=False)")
     parser.add_argument("-s", default="true", help="Show/Hide seconds (default=True)")
     parser.add_argument("-a", default="true", help="Stop timer/stopwatch after reset (default=True)")
     parser.add_argument("-lat", default="0", help="Latitude of your current location")
@@ -43,6 +45,7 @@ def validate_args(args, parser):
         "tf": {"12", "24"},
         "df": {"dd/mm", "mm/dd"},
         "tu": {"c", "f"},
+        "bd": {"true", "false"},
         "s": {"true", "false"},
         "a": {"true", "false"},
         "c": {"white", "black", "red", "yellow", "green", "cyan", "blue", "magenta"},
@@ -60,35 +63,43 @@ def validate_args(args, parser):
 
     return args
 
-def print_help():
+def show_version():
+    version_text = "ClockTemp version 1.1.4"
+    print(version_text)
+    sys.exit(0)
+
+def show_help():
     help_text = """
         ClockTemp - A simple and customizable TUI clock based on tty-clock
-        Version: 1.1.3
+        Version: 1.1.4
 
         Usage: clocktemp [OPTIONS]
 
         Options:
         -h, --help           Show this help message and exit
+        -v, --version        Show program's version and exit
         -tf [12, 24]         Time format: 12 (default) for 12-hour clock, 24 for 24-hour clock
         -df [mm/dd, dd/mm]   Date format: mm/dd (default) for month/day/year, dd/mm for day/month/year
         -tu [c,f]            Temperature unit: c (default) for Celsius, f for Fahrenheit
+        -bd [true, false]    Use bold characters: false (default) to disable, true to enable
         -s [true, false]     Show/Hide seconds: true (default) to show, false to hide
-        -a [true, false]     Stop timer/stopwatch after reset (default: true)
-        -lat LATITUDE        Latitude of your current location (default: 0)
-        -lon LONGITUDE       Longitude of your current location (default: 0)
+        -a [true, false]     Stop timer/stopwatch after reset: true (default) to stop, false to continue
         -c COLOR             Text color: white (default), black, red, yellow, green, cyan, blue, magenta
         -b COLOR             Background color: default (terminal default), white, black, red, yellow, green, cyan, blue, magenta
+        -lat LATITUDE        Latitude of your current location: (default: 0)
+        -lon LONGITUDE       Longitude of your current location: (default: 0)
 
         keys:
         w                    Switch to clock mode
         c                    Switch to calendar mode
         s                    Switch to stopwatch mode
         t                    Switch to timer mode
-        r                    Reset (in stopwatch or timer mode)
-        SPACEBAR             Pause/Resume (in stopwatch or timer mode)
-        < or ,               Show previous month (calendar mode only)
-        > or .               Show next month (calendar mode only)
-        q or ESC             Quit the program
+        h                    Switch to help menu
+        r                    Reset (only in stopwatch or timer modes)
+        SPACEBAR             Pause/Resume (only in stopwatch or timer modes)
+        < or ,               Show previous month (only in calendar mode)
+        > or .               Show next month (only in calendar mode)
+        q or ESC             Quit program
 
         Note:
         - Options are case-insensitive (e.g., -c RED or -c red both work).
@@ -97,7 +108,7 @@ def print_help():
         Command example:
         clocktemp -tf 24 -df dd/mm -tu c -s true -lat 12.345 -lon -67.891 -c black -b white
     """
-    
+
     print(help_text)
     sys.exit(0)
 
@@ -106,7 +117,7 @@ class initial_state:
         # Initialize variables for clock
         self.last_temp = ""                               # Stores the last temperature
         self.last_temp_update = 0                         # Temperature update time
-        self.last_height, self.last_width = stdscr.getmaxyx()  # Terminal size
+        self.last_height, self.last_width = stdscr.getmaxyx() # Terminal size
         self.mode = "clock"                               # Default mode
 
         # Initialize variables for calendar
@@ -117,12 +128,13 @@ class initial_state:
         self.stopwatch_start = time.time()
         self.stopwatch_accumulated = 0
         self.stopwatch_running = False
+        self.stopwatch_total_time = 0
 
         # Initialize variables for timer
+        self.timer_input_mode = True                      # Flag to control timer input screen
         self.timer_running = False
-        self.total_time = 0
+        self.timer_total_time = 0
         self.initial_time = 0
-        self.timer_input_mode = False  # Flag to control timer input screen
 
 def main(stdscr, args):
 
@@ -175,23 +187,27 @@ def main(stdscr, args):
         key = stdscr.getch()
 
         # Handle key events
-        if key in (Keys.q, Keys.Q, Keys.ESC):    # Quit the program
+        if key in (Keys.q, Keys.Q, Keys.ESC): # Quit the program
             break
-        elif key in (Keys.w, Keys.W):  # Change mode to clock mode
+        elif key in (Keys.w, Keys.W): # Change to clock mode
             state.mode = "clock"
             state.timer_input_mode = False
             curses.curs_set(0)
-        elif key in (Keys.c, Keys.C):  # Change mode to calendar
+        elif key in (Keys.c, Keys.C): # Change to calendar mode
             state.mode = "calendar"
             state.timer_input_mode = False
             curses.curs_set(0)
-        elif key in (Keys.s, Keys.S):  # Change mode to stopwatch
+        elif key in (Keys.s, Keys.S): # Change to stopwatch mode
             state.mode = "stopwatch"
             state.timer_input_mode = False
             curses.curs_set(0)
-        elif key in (Keys.t, Keys.T):  # Change mode to timer
+        elif key in (Keys.t, Keys.T): # Change to timer mode
             state.mode = "timer"
-            state.timer_input_mode = True
+            if state.timer_total_time == 0:
+                state.timer_input_mode = True
+        elif key in (Keys.h, Keys.H): # Change to help mode
+            state.mode = "help"
+            state.timer_inpu_mode = False
 
         # Modes functions
         elif key in (Keys.r, Keys.R):
@@ -200,14 +216,14 @@ def main(stdscr, args):
                 state.stopwatch_accumulated = 0
                 state.stopwatch_running = args.a == "false"
             elif state.mode == "timer" and not state.timer_input_mode: # Reset timer
-                state.total_time = state.initial_time
+                state.timer_total_time = state.initial_time
                 state.timer_running = args.a == "false"
 
         elif key == Keys.SPACE: # Pause/Resume stopwatch or timer
             if state.mode == "stopwatch":
                 if state.stopwatch_running:
                     state.stopwatch_accumulated += time.time() - state.stopwatch_start
-                    state.stopwatch_running = False
+                    state.stopwatch_running = not state.stopwatch_running
                 else:
                     state.stopwatch_start = time.time()
                     state.stopwatch_running = True
@@ -235,19 +251,22 @@ def main(stdscr, args):
             state.last_height, state.last_width = height, width
 
         if state.mode == "clock":
-            state.last_temp, state.last_temp_update = draw_clock(stdscr, args, height, width, state)
+            state.last_temp, state.last_temp_update = draw_clock(stdscr, height, width, state, args)
         
         elif state.mode == "calendar":
-            draw_calendar(stdscr, height, width, state)
+            draw_calendar(stdscr, height, width, state, args)
         
         elif state.mode == "stopwatch":
-            state.stopwatch_accumulated, state.stopwatch_running = draw_stopwatch(stdscr, height, width, state)
+            state.stopwatch_accumulated, state.stopwatch_running = draw_stopwatch(stdscr, height, width, state, args)
 
         elif state.mode == "timer":
-            state.total_time, state.initial_time, state.timer_running, state.timer_input_mode = draw_timer(stdscr, height, width, state)
+            state.total_time, state.initial_time, state.timer_running, state.timer_input_mode = draw_timer(stdscr, height, width, state, args)
             # if timer is over return to clock mode
-            if not state.timer_running and state.total_time == 0 and not state.timer_input_mode:
+            if not state.timer_running and state.total_time == 0:
                 state.mode = "clock"
+
+        elif state.mode == "help":  
+            help_menu(stdscr, height, width, args)
     
         stdscr.refresh()
 
@@ -258,6 +277,8 @@ def main(stdscr, args):
 if __name__ == "__main__":
     args = parse_args()
     if args.help:
-        print_help()
+        show_help()
+    elif args.version:
+        show_version()
     else:
         curses.wrapper(main, args)

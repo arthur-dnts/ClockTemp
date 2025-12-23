@@ -42,19 +42,23 @@ def render_calendar(year=None, month=None):
 
     current_day = now.day if year == now.year and month == now.month else None
 
+    ATTR_EMPTY = 0
+    ATTR_NORMAL = 1
+    ATTR_HIGHLIGHT = 2
+
     for week in cal:
         week_str = ""
         week_attrs = []
         for day in week:
             if day == 0:
                 week_str += "   "
-                week_attrs.extend([0, 0, 0])
+                week_attrs.extend([ATTR_EMPTY, ATTR_EMPTY, ATTR_EMPTY])
             else:
                 week_str += f"{day:02} "
                 if day == current_day:
-                    week_attrs.extend([2, 2, 1])  # Highlight only for 2 digits of current day
+                    week_attrs.extend([ATTR_HIGHLIGHT, ATTR_HIGHLIGHT, ATTR_NORMAL]) # Highlight only for 2 digits of current day
                 else:
-                    week_attrs.extend([1, 1, 1])  # All characters are normal
+                    week_attrs.extend([ATTR_NORMAL, ATTR_NORMAL, ATTR_NORMAL]) # All characters are normal
         formatted_lines.append(week_str.rstrip())
         attributes.append(week_attrs)
 

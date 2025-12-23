@@ -55,34 +55,25 @@ def render_digit(digit_matrix):
     lines = [""] * 5
     for i in range(15):
         row = i // 3
-        column = i % 3
         if digit_matrix[i] == 1:
             lines[row] += "██"
         else:
             lines[row] += "  "
     return lines
 
-# Render clock based on current time
-def render_clock(timeFormat):
-    current_time = time.strftime(timeFormat)
-    lines = [""] * 5
-    for char in current_time:
-        if char == ":":
-            digit_matrix = NUMBERS[10]
-        else:
-            digit_matrix = NUMBERS[int(char)]
-        digit_lines = render_digit(digit_matrix)
-        for row in range(5):
-            lines[row] += digit_lines[row] + " "
-    return lines
+# Format clock time based on given format
+def format_clock(time_obj, format):
+    return time_obj.strftime(format)
 
-# Render stopwatch and timer
-def render_stop_timer(totalTime):
-    hours = totalTime // 3600
-    minutes = (totalTime % 3600) // 60
-    seconds = totalTime % 60
+# Format total seconds into HH:MM:SS for stopwatch and timer
+def format_time(total_seconds):
+    hours = total_seconds // 3600
+    minutes = (total_seconds % 3600) // 60
+    seconds = total_seconds % 60
+    return f"{hours:02}:{minutes:02}:{seconds:02}"
 
-    time_str = f"{hours:02}:{minutes:02}:{seconds:02}"
+# Render digits for clock, stopwatch and timer
+def render_digits(time_str):
     lines = [""] * 5
     for char in time_str:
         if char == ":":

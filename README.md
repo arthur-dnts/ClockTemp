@@ -1,11 +1,12 @@
 <div align="center">
- <h1>ClockTemp</h1>
+ <img src="assets/logo.png">
  <p><b>ClockTemp</b> is a TUI clock inspired by <a href="https://github.com/xorg62/tty-clock">tty-clock</a> that displays the time, date, temperature and more.</p><br>
  <a href="https://github.com/arthur-dnts/ClockTemp/stargazers"><img src="https://img.shields.io/github/stars/arthur-dnts/ClockTemp?&style=for-the-badge&color=F2F4F8&labelColor=161616"></a>
  <a href="https://github.com/arthur-dnts/ClockTemp/blob/main/LICENSE"><img src="https://img.shields.io/github/license/arthur-dnts/ClockTemp?&style=for-the-badge&color=F2F4F8&labelColor=161616"></a>
  <a href="https://github.com/arthur-dnts/ClockTemp/releases"><img src="https://img.shields.io/github/v/release/arthur-dnts/ClockTemp?style=for-the-badge&color=F2F4F8&labelColor=161616&label=Version"></a>
  <img src="https://img.shields.io/github/last-commit/arthur-dnts/ClockTemp?&style=for-the-badge&color=F2F4F8&labelColor=161616">
- <img src="assets/Screenshot_1.png">
+ <img src="https://img.shields.io/badge/-Linux-161616?style=for-the-badge&logo=linux&color=F2F4F8&labelColor=161616&logoColor=F2F4F8">
+ <img src="assets/Screenshot.png">
  <a href="#installation">Installation</a> • <a href="#remove-clocktemp">Uninstall</a> • <a href="#commands-and-interactive-keys-list">Commands and Keys</a> • <a href="#credits">Credits</a> • <a href="#resources-used">Resources Used</a> • <a href="#contributors"> Contributors </a>  
 </div>
 
@@ -73,15 +74,17 @@ If you want to remove ClockTemp from your environment variables, follow these st
 | COMMAND | CHOICES | DEFAULT | FUNCTION |
 |:-------:|:-------:|:-------:|:--------:|
 | -h, --help | None | None | Show help message and exit |
+| -v, --version | None | None | Show program's version and exit |
 | -tf     | 12 / 24 |   12    | Change time format between 12-hour and 24-hour |
 | -df     | mm/dd / dd/mm |   mm/dd    | Change date format between MM/DD/YYYY and DD/MM/YYYY |
 | -tu     | c / f |   c    | Change temperature unit between Celsius and Fahrenheit |
+| -bd     | true / false |   false    | Use bold characters |
 | -s      | true / false |   true    | Show or hide seconds |
 | -a      | true / false |   true    | Stop timer/stopwatch after reset |
-| -lat    | Any latitude |   0    | Use the user's latitude to get weather data from Open-Meteo API |
-| -lon    | Any longitude |   0    | Use the user's longitude to get weather data from Open-Meteo API |
 | -c      | white / black / red / yellow / green / cyan / blue / magenta |   white    | Change text color |
 | -b      | default / white / black / red / yellow / green / cyan / blue / magenta |   default    | Change background color |
+| -lat    | Any latitude |   0    | Use the user's latitude to get weather data from Open-Meteo API |
+| -lon    | Any longitude |   0    | Use the user's longitude to get weather data from Open-Meteo API |
 
 Example command:
  ```
@@ -90,15 +93,16 @@ Example command:
 
 |   KEYS   | FUNCTION |
 |:--------:|:--------:|
-| w        | Change to clock mode |
-| c        | Change to calendar mode |
-| s        | Change to stopwatch mode |
-| t        | Change to timer mode |
-| r        | Reset stopwatch or timer |
-| SPACEBAR | Pause/Resume stopwatch or timer |
-| < / ,    | Previous month |
-| > / .    | Next month |
-| q or ESC | Quit ClockTemp |
+| w        | Switch to clock mode |
+| c        | Switch to calendar mode |
+| s        | Switch to stopwatch mode |
+| t        | Switch to timer mode |
+| h        | Switch to help menu |
+| r        | Reset (only in stopwatch or timer modes) |
+| SPACEBAR | Pause/Resume (only in stopwatch or timer modes) |
+| < / ,    | Previous month (only in calendar mode) |
+| > / .    | Next month (only in calendar mode) |
+| q or ESC | Quit program |
   
 ## Credits
 
