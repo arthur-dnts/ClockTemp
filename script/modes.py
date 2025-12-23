@@ -36,7 +36,7 @@ def help_menu(stdscr, height, width, args):
     ██   ██    ██ ██ ██   ███▛    ██   ██ ██ ███ ███ ██ ██ 
     ██   ██    ██ ██ ██   ██ █▙   ██   ██▛▘  ██ █ ██ ████▛ 
     ▜███ ▜████ ▜███▛ ▜███ ██ ██   ██   ▜████ ██   ██ ██    
-                                             Version 1.1.4 
+                                             Version 1.2.0 
     """
 
     logo_start_x = width - 2
