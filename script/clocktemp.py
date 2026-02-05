@@ -209,7 +209,7 @@ def main(stdscr, args):
                 state.timer_input_mode = True
         elif key in (Keys.h, Keys.H): # Change to help mode
             state.mode = "help"
-            state.timer_inpu_mode = False
+            state.timer_input_mode = False
 
         # Modes functions
         elif key in (Keys.r, Keys.R):
@@ -217,7 +217,8 @@ def main(stdscr, args):
                 state.stopwatch_start = time.time()
                 state.stopwatch_accumulated = 0
                 state.stopwatch_running = args.a == "false"
-            elif state.mode == "timer" and not state.timer_input_mode: # Reset timer
+            elif state.mode == "timer": # Reset timer
+                state.timer_start = time.time()
                 state.timer_total_time = state.initial_time
                 state.timer_running = args.a == "false"
 
@@ -225,12 +226,16 @@ def main(stdscr, args):
             if state.mode == "stopwatch":
                 if state.stopwatch_running:
                     state.stopwatch_accumulated += time.time() - state.stopwatch_start
-                    state.stopwatch_running = not state.stopwatch_running
+                    state.stopwatch_running = False
                 else:
                     state.stopwatch_start = time.time()
                     state.stopwatch_running = True
             elif state.mode == "timer" and not state.timer_input_mode:
-                state.timer_running = not state.timer_running
+                if state.timer_running:
+                    state.timer_running = False
+                else:
+                    state.timer_start = time.time() - (state.initial_time - state.timer_total_time)
+                    state.timer_running = True
 
         elif state.mode == "calendar" and key in (Keys.LESS, Keys.COMMA): # Previous month
             state.calendar_month -= 1

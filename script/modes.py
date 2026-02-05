@@ -208,8 +208,11 @@ def draw_timer(stdscr, height, width, state, args):
 
         else:
             # Render timer
-            elapsed = time.time() - state.timer_start
-            current_timer = max(0, int(state.initial_time - elapsed))
+            if state.timer_running:
+                elapsed = time.time() - state.timer_start
+                current_timer = max(0, int(state.initial_time - elapsed))
+            else:
+                current_timer = state.timer_total_time
 
             # Timer finished message
             if current_timer == 0:
