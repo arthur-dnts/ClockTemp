@@ -36,7 +36,7 @@ def help_menu(stdscr, height, width, args):
     ██   ██    ██ ██ ██   ███▛    ██   ██ ██ ███ ███ ██ ██ 
     ██   ██    ██ ██ ██   ██ █▙   ██   ██▛▘  ██ █ ██ ████▛ 
     ▜███ ▜████ ▜███▛ ▜███ ██ ██   ██   ▜████ ██   ██ ██    
-                                             Version 1.2.0 
+                                             Version 1.2.1 
     """
 
     logo_start_x = width - 2
@@ -192,11 +192,15 @@ def draw_timer(stdscr, height, width, state, args):
                     state.timer_input_mode = True
                     curses.curs_set(0)
                     return state.timer_total_time, state.initial_time, state.timer_running, state.timer_input_mode
+
                 state.timer_total_time = int(minutes * 60)
                 state.initial_time = state.timer_total_time
+
+                state.timer_start = time.time()
                 state.timer_running = True
                 state.timer_input_mode = False
                 curses.curs_set(0)
+
             except ValueError:
                 state.timer_input_mode = False
                 curses.curs_set(0)
@@ -204,11 +208,12 @@ def draw_timer(stdscr, height, width, state, args):
 
         else:
             # Render timer
-            if state.timer_running and state.timer_total_time > 0:
-                state.timer_total_time -= 1
+            elapsed = time.time() - state.timer_start
+            current_timer = max(0, int(state.initial_time - elapsed))
 
             # Timer finished message
-            elif state.timer_total_time <= 0 and state.timer_running:
+            if current_timer == 0:
+                state.timer_total_time = 0
                 state.timer_running = False
                 state.timer_input_mode = True
                 stdscr.clear()
@@ -224,6 +229,10 @@ def draw_timer(stdscr, height, width, state, args):
                     center_highlighted_text(stdscr, height, width, "", wait_msg.format(ceil((50-i)/10)), end_start_y + 1, args)
                     stdscr.refresh()
                     curses.beep()
+                    time.sleep(0.1) # Add delay to show countdown properly
+            
+            else:
+                state.timer_total_time = current_timer
 
             timer_total_time = state.timer_total_time
             time_str = format_time(timer_total_time)

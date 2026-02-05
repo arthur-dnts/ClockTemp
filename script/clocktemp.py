@@ -64,14 +64,14 @@ def validate_args(args, parser):
     return args
 
 def show_version():
-    version_text = "ClockTemp version 1.2.0"
+    version_text = "ClockTemp version 1.2.1"
     print(version_text)
     sys.exit(0)
 
 def show_help():
     help_text = """
         ClockTemp - A simple and customizable TUI clock based on tty-clock
-        Version: 1.2.0
+        Version: 1.2.1
 
         Usage: clocktemp [OPTIONS]
 
@@ -135,6 +135,7 @@ class initial_state:
         self.timer_running = False
         self.timer_total_time = 0
         self.initial_time = 0
+        self.timer_start = 0 
 
 def main(stdscr, args):
 
@@ -180,6 +181,7 @@ def main(stdscr, args):
 
     curses.curs_set(0) # Hide cursor
     stdscr.timeout(100) # 1 second ticker
+    stdscr.nodelay(True)
 
     while True:
         start_time = time.time()
@@ -260,10 +262,11 @@ def main(stdscr, args):
             state.stopwatch_accumulated, state.stopwatch_running = draw_stopwatch(stdscr, height, width, state, args)
 
         elif state.mode == "timer":
-            state.total_time, state.initial_time, state.timer_running, state.timer_input_mode = draw_timer(stdscr, height, width, state, args)
+            state.timer_total_time, state.initial_time, state.timer_running, state.timer_input_mode = draw_timer(stdscr, height, width, state, args)
             # if timer is over return to clock mode
-            if not state.timer_running and state.total_time == 0:
+            if not state.timer_running and state.timer_total_time == 0:
                 state.mode = "clock"
+                state.timer_input_mode = True
 
         elif state.mode == "help":  
             help_menu(stdscr, height, width, args)
@@ -271,7 +274,7 @@ def main(stdscr, args):
         stdscr.refresh()
 
         elapsed_time = time.time() - start_time
-        sleep_time = max(0, 1.0 - elapsed_time)
+        sleep_time = max(0, 0.02 - elapsed_time)
         time.sleep(sleep_time)
 
 if __name__ == "__main__":
