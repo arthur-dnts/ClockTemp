@@ -34,11 +34,15 @@ Prerequisites: [Python](https://www.python.org/) version 3.x and [requests](http
  ```
 
 > [!TIP]
-Since ClockTemp has many customization options, you can create an alias in Bashrc to set the desired options once.
+Since ClockTemp has many customization options, you can create an alias in Bashrc / Zshrc to set the desired options once.
 
-1. On your terminal open Bashrc
+1. On your terminal open bashrc / zshrc
  ```
- nano ~/.bashrc
+ nano ~/.bashrc # If Bash is your shell
+ ```
+
+ ```
+ nano ~/.zshrc # If ZSH is your shell
  ```
 2. At the end of the file add your custom configuration
  ```
@@ -48,7 +52,11 @@ Since ClockTemp has many customization options, you can create an alias in Bashr
 
 4. Apply changes on your terminal
  ```
- source ~/.bashrc
+ source ~/.bashrc # If Bash is your shell
+ ```
+
+ ```
+ source ~/.zshrc # If ZSH is your shell
  ```
 5. Now whenever you run the <code>clocktemp</code> command without arguments the alias will cause the previously saved settings to be loaded.
  ```
@@ -143,7 +151,7 @@ This project was made using <code>Python</code> version 3.10.12, the <code>Reque
 
 ## License
 
-The <code>ClockTemp</code> project as a whole is licensed under the GNU General Public License v3 (GPLv3). See the LICENSE file for details.
+The <code>ClockTemp</code> project as a whole is licensed under the GNU General Public License v3 (GPLv3). See the <a href="https://github.com/arthur-dnts/ClockTemp/blob/main/LICENSE">LICENSE</a> file for details.
 
 ## Contributors
 

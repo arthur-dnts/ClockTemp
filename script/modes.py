@@ -36,18 +36,20 @@ def help_menu(stdscr, height, width, args):
     ██   ██    ██ ██ ██   ███▛    ██   ██ ██ ███ ███ ██ ██ 
     ██   ██    ██ ██ ██   ██ █▙   ██   ██▛▘  ██ █ ██ ████▛ 
     ▜███ ▜████ ▜███▛ ▜███ ██ ██   ██   ▜████ ██   ██ ██    
-                                             Version 1.2.1 
+                                             Version 1.2.2 
     """
 
-    logo_start_x = width - 2
-    logo_start_y = (height -12) // 2
+    logo_start_x = width
+    logo_start_y = (height - 12) // 2
+    hint_left_start_x = width - 25
+    hint_right_start_x = width + 25
 
     center_highlighted_text(stdscr, height, logo_start_x, logo.splitlines(), "", logo_start_y, args)
-    center_highlighted_text(stdscr, height, width - 29, "W : ", "Clock Mode", logo_start_y + 7, args)
-    center_highlighted_text(stdscr, height, width + 25, "C : ", "Calendar Mode", logo_start_y + 7, args)
-    center_highlighted_text(stdscr, height, width - 25, "S : ", "Stopwatch Mode", logo_start_y + 9, args)
-    center_highlighted_text(stdscr, height, width + 21, "T : ", "Timer Mode", logo_start_y + 9, args)
-    center_highlighted_text(stdscr, height, width - 2, "Q / ESC : ", "Close program", logo_start_y + 11, args)
+    center_highlighted_text(stdscr, height, hint_left_start_x - 1, "W : ", "Clock Mode", logo_start_y + 7, args)
+    center_highlighted_text(stdscr, height, hint_right_start_x + 3, "C : ", "Calendar Mode", logo_start_y + 7, args)
+    center_highlighted_text(stdscr, height, hint_left_start_x + 3, "S : ", "Stopwatch Mode", logo_start_y + 9, args)
+    center_highlighted_text(stdscr, height, hint_right_start_x, "T : ", "Timer Mode", logo_start_y + 9, args)
+    center_highlighted_text(stdscr, height, width, "Q / ESC : ", "Close program", logo_start_y + 11, args)
 
 def draw_clock(stdscr, height, width, state, args):
 
