@@ -14,6 +14,7 @@ from datetime import datetime
 from tools import Keys
 import argparse
 import curses
+import select
 import time
 import sys
 
@@ -179,75 +180,74 @@ def main(stdscr, args):
     if args.b != "default":
         stdscr.bkgd(" ", curses.color_pair(1))
 
-    curses.curs_set(0) # Hide cursor
-    stdscr.timeout(100) # 1 second ticker
+    curses.curs_set(0)
     stdscr.nodelay(True)
 
     while True:
-        start_time = time.time()
+        # Wait for input or next second boundary
+        now = time.time()
+        timeout = 1.0 - (now % 1.0)
+        select.select([sys.stdin], [], [], timeout)
 
+        # Process all pending keys
         key = stdscr.getch()
-
-        # Handle key events
-        if key in (Keys.q, Keys.Q, Keys.ESC): # Quit the program
-            break
-        elif key in (Keys.w, Keys.W): # Change to clock mode
-            state.mode = "clock"
-            state.timer_input_mode = False
-            curses.curs_set(0)
-        elif key in (Keys.c, Keys.C): # Change to calendar mode
-            state.mode = "calendar"
-            state.timer_input_mode = False
-            curses.curs_set(0)
-        elif key in (Keys.s, Keys.S): # Change to stopwatch mode
-            state.mode = "stopwatch"
-            state.timer_input_mode = False
-            curses.curs_set(0)
-        elif key in (Keys.t, Keys.T): # Change to timer mode
-            state.mode = "timer"
-            if state.timer_total_time == 0:
-                state.timer_input_mode = True
-        elif key in (Keys.h, Keys.H): # Change to help mode
-            state.mode = "help"
-            state.timer_input_mode = False
-
-        # Modes functions
-        elif key in (Keys.r, Keys.R):
-            if state.mode == "stopwatch": # Reset stopwatch
-                state.stopwatch_start = time.time()
-                state.stopwatch_accumulated = 0
-                state.stopwatch_running = args.a == "false"
-            elif state.mode == "timer": # Reset timer
-                state.timer_start = time.time()
-                state.timer_total_time = state.initial_time
-                state.timer_running = args.a == "false"
-
-        elif key == Keys.SPACE: # Pause/Resume stopwatch or timer
-            if state.mode == "stopwatch":
-                if state.stopwatch_running:
-                    state.stopwatch_accumulated += time.time() - state.stopwatch_start
-                    state.stopwatch_running = False
-                else:
+        while key != -1:
+            if key in (Keys.q, Keys.Q, Keys.ESC):
+                return
+            elif key in (Keys.w, Keys.W):
+                state.mode = "clock"
+                state.timer_input_mode = False
+                curses.curs_set(0)
+            elif key in (Keys.c, Keys.C):
+                state.mode = "calendar"
+                state.timer_input_mode = False
+                curses.curs_set(0)
+            elif key in (Keys.s, Keys.S):
+                state.mode = "stopwatch"
+                state.timer_input_mode = False
+                curses.curs_set(0)
+            elif key in (Keys.t, Keys.T):
+                state.mode = "timer"
+                if state.timer_total_time == 0:
+                    state.timer_input_mode = True
+            elif key in (Keys.h, Keys.H):
+                state.mode = "help"
+                state.timer_input_mode = False
+            elif key in (Keys.r, Keys.R):
+                if state.mode == "stopwatch":
                     state.stopwatch_start = time.time()
-                    state.stopwatch_running = True
-            elif state.mode == "timer" and not state.timer_input_mode:
-                if state.timer_running:
-                    state.timer_running = False
-                else:
-                    state.timer_start = time.time() - (state.initial_time - state.timer_total_time)
-                    state.timer_running = True
+                    state.stopwatch_accumulated = 0
+                    state.stopwatch_running = args.a == "false"
+                elif state.mode == "timer":
+                    state.timer_start = time.time()
+                    state.timer_total_time = state.initial_time
+                    state.timer_running = args.a == "false"
+            elif key == Keys.SPACE:
+                if state.mode == "stopwatch":
+                    if state.stopwatch_running:
+                        state.stopwatch_accumulated += time.time() - state.stopwatch_start
+                        state.stopwatch_running = False
+                    else:
+                        state.stopwatch_start = time.time()
+                        state.stopwatch_running = True
+                elif state.mode == "timer" and not state.timer_input_mode:
+                    if state.timer_running:
+                        state.timer_running = False
+                    else:
+                        state.timer_start = time.time() - (state.initial_time - state.timer_total_time)
+                        state.timer_running = True
+            elif state.mode == "calendar" and key in (Keys.LESS, Keys.COMMA):
+                state.calendar_month -= 1
+                if state.calendar_month < 1:
+                    state.calendar_month = 12
+                    state.calendar_year -= 1
+            elif state.mode == "calendar" and key in (Keys.GREATER, Keys.DOT):
+                state.calendar_month += 1
+                if state.calendar_month > 12:
+                    state.calendar_month = 1
+                    state.calendar_year += 1
 
-        elif state.mode == "calendar" and key in (Keys.LESS, Keys.COMMA): # Previous month
-            state.calendar_month -= 1
-            if state.calendar_month < 1:
-                state.calendar_month = 12
-                state.calendar_year -= 1
-
-        elif state.mode == "calendar" and key in (Keys.GREATER, Keys.DOT): # Next month
-            state.calendar_month += 1
-            if state.calendar_month > 12:
-                state.calendar_month = 1
-                state.calendar_year += 1
+            key = stdscr.getch()
 
         stdscr.erase()
 
@@ -278,9 +278,6 @@ def main(stdscr, args):
     
         stdscr.refresh()
 
-        elapsed_time = time.time() - start_time
-        sleep_time = max(0, 0.02 - elapsed_time)
-        time.sleep(sleep_time)
 
 if __name__ == "__main__":
     args = parse_args()
