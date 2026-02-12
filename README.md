@@ -155,8 +155,8 @@ The <code>ClockTemp</code> project as a whole is licensed under the GNU General 
 
 ## Contributors
 
-| [<div><img width=100 src="https://avatars.githubusercontent.com/u/73240555?v=4"><br><span>Arthur D.</span></div>][Arthur D.] | [<div><img width=100 src="https://avatars.githubusercontent.com/u/193435795?v=4"><br><span>binsld</span></div>][Sergeev Lev] |
-|:-------:|:-------:|
+| [<div><img width=100 src="https://avatars.githubusercontent.com/u/73240555?v=4"><br><span>Arthur D.</span></div>][Arthur D.] | [<div><img width=100 src="https://avatars.githubusercontent.com/u/193435795?v=4"><br><span>binsld</span></div>][Sergeev Lev] | [<div><img width=100 src="https://avatars.githubusercontent.com/u/132654506?v=4"><br><span>Keithse</span></div>][Keithsel] |
+|:-------:|:-------:|:-------:|
 
 ## Star History
 
@@ -171,3 +171,4 @@ The <code>ClockTemp</code> project as a whole is licensed under the GNU General 
 <!--Contributors-->
 [Arthur D.]: https://github.com/arthur-dnts
 [Sergeev Lev]: https://github.com/binsld
+[Keithsel]: https://github.com/Keithsel

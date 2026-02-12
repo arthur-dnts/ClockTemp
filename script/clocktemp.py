@@ -65,14 +65,14 @@ def validate_args(args, parser):
     return args
 
 def show_version():
-    version_text = "ClockTemp version 1.2.2"
+    version_text = "ClockTemp version 1.2.3"
     print(version_text)
     sys.exit(0)
 
 def show_help():
     help_text = """
         ClockTemp - A simple and customizable TUI clock based on tty-clock
-        Version: 1.2.2
+        Version: 1.2.3
 
         Usage: clocktemp [OPTIONS]
 
@@ -277,7 +277,6 @@ def main(stdscr, args):
             help_menu(stdscr, height, width, args)
     
         stdscr.refresh()
-
 
 if __name__ == "__main__":
     args = parse_args()
