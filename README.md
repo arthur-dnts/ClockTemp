@@ -17,7 +17,7 @@ Prerequisites: [Python](https://www.python.org/) version 3.x and [requests](http
 
 1. Clone the repository to have local access to all the necessary files. You can do this using the following command:
  ```
- git clone https://github.com/dantas-arthur/ClockTemp.git
+ git clone https://github.com/arthur-dnts/ClockTemp.git
  ```
 
 2. On your terminal navigate to the project directory
