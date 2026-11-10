@@ -16,5 +16,5 @@ def get_weather(lat=0, lon=0):
             response = requests.get(url)
             temp = response.json()["current_weather"]["temperature"]
             return float(temp)
-        except requests.RequestException as e:
+        except (requests.RequestException, KeyError, ValueError, TypeError) as e:
             return f"Error: {e}"
