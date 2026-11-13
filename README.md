@@ -83,11 +83,13 @@ If you want to remove ClockTemp from your environment variables, follow these st
 |:-------:|:-------:|:-------:|:--------:|
 | -h, --help | None | None | Show help message and exit |
 | -v, --version | None | None | Show program's version and exit |
+| -stopwatch, -s | None | None | Start directly in stopwatch mode |
+| -timer, -t | Optional minutes (e.g. 5) | None | Start directly in timer mode |
 | -tf     | 12 / 24 |   12    | Change time format between 12-hour and 24-hour |
 | -df     | mm/dd / dd/mm |   mm/dd    | Change date format between MM/DD/YYYY and DD/MM/YYYY |
 | -tu     | c / f |   c    | Change temperature unit between Celsius and Fahrenheit |
 | -bd     | true / false |   false    | Use bold characters |
-| -s      | true / false |   true    | Show or hide seconds |
+| -s, -sec | true / false |   true    | Show or hide seconds |
 | -a      | true / false |   true    | Stop timer/stopwatch after reset |
 | -c      | white / black / red / yellow / green / cyan / blue / magenta |   white    | Change text color |
 | -b      | default / white / black / red / yellow / green / cyan / blue / magenta |   default    | Change background color |

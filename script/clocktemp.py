@@ -26,11 +26,14 @@ def parse_args():
     parser = argparse.ArgumentParser(description="ClockTemp is a simple and customizable TUI clock based on tty-clock", add_help=False)
     parser.add_argument("-h", "--help", action="store_true", help="Show this help message and exit")
     parser.add_argument("-v", "--version", action="store_true", help="Show program's version and exit")
+    parser.add_argument("-stopwatch", "--stopwatch", action="store_true", help="Start directly in stopwatch mode")
+    parser.add_argument("-timer", "--timer", "-t", nargs="?", const="prompt", default=None, help="Start directly in timer mode (optionally provide duration in minutes, e.g. -t 5)")
     parser.add_argument("-tf", default="12", help="Time format: 12 (default) for 12-hour clock, 24 for 24-hour clock")
     parser.add_argument("-df", default="mm/dd", help="Date format: dd/mm for day/month/year, mm/dd (default) for month/day/year")
     parser.add_argument("-tu", default="c", help="Temperature unit: c (default) for Celsius, f for Fahrenheit")
     parser.add_argument("-bd", default="false", help="Use bold characters (default=False)")
-    parser.add_argument("-s", default="true", help="Show/Hide seconds (default=True)")
+    parser.add_argument("-s", nargs="?", const="__STOPWATCH__", default="true", help="Show/Hide seconds (default=True) or start directly in stopwatch mode (-s)")
+    parser.add_argument("-sec", default=None, help="Show/Hide seconds: true (default) to show, false to hide")
     parser.add_argument("-a", default="true", help="Stop timer/stopwatch after reset (default=True)")
     parser.add_argument("-lat", default="0", help="Latitude of your current location")
     parser.add_argument("-lon", default="0", help="Longitude of your current location")
@@ -41,6 +44,27 @@ def parse_args():
     return validate_args(args, parser)
 
 def validate_args(args, parser):
+    # Check if -s was used as a flag to start stopwatch
+    if args.s == "__STOPWATCH__":
+        args.stopwatch = True
+        args.s = "true"
+
+    if args.sec is not None:
+        args.s = args.sec.lower()
+
+    # Check mutual exclusivity of stopwatch and timer start modes
+    if args.stopwatch and args.timer is not None:
+        parser.error("Cannot start with both stopwatch and timer. Choose either -stopwatch (-s) or -timer (-t).")
+
+    # Validate timer duration if provided
+    if args.timer is not None and args.timer != "prompt":
+        try:
+            timer_min = float(args.timer)
+            if timer_min <= 0:
+                parser.error(f"Invalid timer duration: {args.timer}. Must be greater than 0.")
+        except ValueError:
+            parser.error(f"Invalid timer duration: {args.timer}. Choose a positive number of minutes, e.g. -t 5.")
+
     # Valid arguments
     valid_options = {
         "tf": {"12", "24"},
@@ -79,11 +103,13 @@ def show_help():
         Options:
         -h, --help           Show this help message and exit
         -v, --version        Show program's version and exit
+        -stopwatch, -s       Start directly in stopwatch mode
+        -timer, -t [MIN]     Start directly in timer mode (optional minutes, e.g. -t 5)
         -tf [12, 24]         Time format: 12 (default) for 12-hour clock, 24 for 24-hour clock
         -df [mm/dd, dd/mm]   Date format: mm/dd (default) for month/day/year, dd/mm for day/month/year
         -tu [c,f]            Temperature unit: c (default) for Celsius, f for Fahrenheit
         -bd [true, false]    Use bold characters: false (default) to disable, true to enable
-        -s [true, false]     Show/Hide seconds: true (default) to show, false to hide
+        -s, -sec [true, false] Show/Hide seconds: true (default) to show, false to hide
         -a [true, false]     Stop timer/stopwatch after reset: true (default) to stop, false to continue
         -c COLOR             Text color: white (default), black, red, yellow, green, cyan, blue, magenta
         -b COLOR             Background color: default (terminal default), white, black, red, yellow, green, cyan, blue, magenta
@@ -141,6 +167,21 @@ class initial_state:
 def main(stdscr, args):
 
     state = initial_state(stdscr)
+
+    if args.stopwatch:
+        state.mode = "stopwatch"
+        state.timer_input_mode = False
+    elif args.timer is not None:
+        state.mode = "timer"
+        if args.timer == "prompt":
+            state.timer_input_mode = True
+        else:
+            minutes = float(args.timer)
+            state.timer_total_time = int(minutes * 60)
+            state.initial_time = state.timer_total_time
+            state.timer_start = time.time()
+            state.timer_running = True
+            state.timer_input_mode = False
 
     # Map text color
     color_map = {
